@@ -184,7 +184,7 @@ end;
 $$ language plpgsql;
 
 create trigger artworks_indexing_gate
-  before update on artworks
+  before insert or update on artworks    -- insert too: a row can be born indexed; the gate holds from the first breath
   for each row
   when (new.indexed)
   execute function enforce_indexing_gate();
@@ -205,6 +205,33 @@ create trigger image_assets_story_only
   before insert on image_assets
   for each row
   execute function enforce_story_only();
+
+-- ADR-0005 rider: the floor holds after indexing too. Deleting a reference
+-- asset that would drop an indexed artwork below 3 raises — un-index first,
+-- explicitly. Never silent. (Cascade note: when the artwork row itself is
+-- deleted, the parent is already gone from the snapshot, so this stays quiet.)
+create function enforce_reference_floor() returns trigger as $$
+declare
+  ref_count int;
+begin
+  if old.kind <> 'reference' then
+    return old;
+  end if;
+  select count(*) into ref_count from image_assets
+    where artwork_id = old.artwork_id and kind = 'reference';
+  if ref_count < 3 and exists (
+    select 1 from artworks a where a.id = old.artwork_id and a.indexed
+  ) then
+    raise exception 'ADR-0005: deleting this reference leaves an indexed artwork with % (< 3) reference assets. Un-index it first.', ref_count;
+  end if;
+  return old;
+end;
+$$ language plpgsql;
+
+create trigger image_assets_reference_floor
+  after delete on image_assets
+  for each row
+  execute function enforce_reference_floor();
 
 create function touch_updated_at() returns trigger as $$
 begin

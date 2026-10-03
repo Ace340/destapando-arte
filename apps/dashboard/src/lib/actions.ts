@@ -70,14 +70,19 @@ export async function createCuriosity(formData: FormData): Promise<void> {
     throw new Error('ADR-0007: la curiosidad necesita texto y fuente.')
   }
 
-  const { count } = await db()
+  // Next free slot: max + 1. count+1 would collide with the gaps that
+  // removeCuriosity leaves behind (unique(artwork_id, position) rejects it).
+  const { data: last } = await db()
     .from('curiosities')
-    .select('id', { count: 'exact', head: true })
+    .select('position')
     .eq('artwork_id', artworkId)
+    .order('position', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   const { error } = await db().from('curiosities').insert({
     artwork_id: artworkId,
-    position: (count ?? 0) + 1,
+    position: (last?.position ?? 0) + 1,
     text: body,
     type: text(formData, 'type') as CuriosityType,
     source_url: sourceUrl,
