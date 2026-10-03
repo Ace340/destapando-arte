@@ -1,0 +1,3 @@
+# Dual-track publishing: story_status line + indexed boolean
+
+2026-09-29. Editorial state (created → enriched → draft → published) and recognition indexing (indexed) are independent: a story-only lesson publishes and can never index, because rights block it permanently — that's a type, not a missing step. Scannable in-app = published AND indexed. Indexing gate: hard floor of 3 diverse reference vectors (source and crop diversity), target 7 — a single overfit vector is exactly how silent wrong answers ship. Enriched includes the rights check and image-asset attachment; created covers both imports and manual Spanish-canon creation.

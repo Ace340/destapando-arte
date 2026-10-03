@@ -1,0 +1,3 @@
+# Privacy disclosed now, not patched later
+
+2026-09-29. A one-page Spanish privacy policy — repo file, /privacidad public page, and the Play Console data-safety answers — declaring the honest inventory: Expo push tokens, anonymous analytics events, install referrer; no accounts, no email, no personal data. The push token is an identifier under any honest reading and is declared as one. The Phase-3 camera sentence ships from day one: "si usas el escáner, la imagen se envía a servidores de Google para su análisis" — a sentence now versus a launch-blocking review cycle later. Policy completion is a Phase 2 exit criterion, not a nice-to-have. Draft: Patrick; review before closed beta.

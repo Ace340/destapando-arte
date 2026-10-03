@@ -1,0 +1,3 @@
+# No claim rests on a link we don't control (amends 0008)
+
+2026-09-29. Every film connection carries frame_analysis_text as a required field — the written reconstruction of the shot (composition, light direction, geometry) plus our own annotated diagram, e.g. Barry Lyndon's candlelight redrawn as a Van Eyck light-vector diagram. evidence_visual (our_diagram | youtube_embed | both | none) is auxiliary garnish: if an embed dies to a takedown, the claim stands untouched on text + diagram. A weekly oEmbed health cron flags dead embeds for re-sourcing. We destapar the mechanism, not the surface — the diagram is the claim, visualized, and it's 100% ours forever.

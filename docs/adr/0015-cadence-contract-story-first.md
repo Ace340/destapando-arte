@@ -1,0 +1,3 @@
+# Cadence contract: Story first, dashboard-enforced
+
+2026-09-29. The Story is the source of truth; the episode is derivative — one production line, now with a direction. Hard rule: no episode is scheduled about an Artwork whose Story isn't published; the dashboard calendar structurally blocks an episode card from entering "scheduled" while its Story is draft, making drift impossible rather than forbidden. Minimum cadence: one episode ↔ one new Story per week, published the same day. Launch window: the 10-painting slice runs as 10 episodes across two weeks of weekdays (suits the algorithm better than 10 straight days).
