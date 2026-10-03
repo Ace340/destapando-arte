@@ -152,6 +152,12 @@ export default async function Page(props: Props) {
           </button>
         </form>
       </section>
+
+      <p className="mt-10 text-center text-xs text-zinc-400">
+        <a className="underline hover:text-zinc-600" href="/privacidad">
+          Privacidad
+        </a>
+      </p>
     </main>
   )
 }
