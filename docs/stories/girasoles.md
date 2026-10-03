@@ -25,7 +25,7 @@ Desde 1924 vive en la National Gallery de Londres, comprada con el fondo Courtau
 
 ### Por qué importa — el argumento (obligatorio, 2–3 frases)
 
-Importa porque aquí un flor «vulgar» se convierte en firma personal: «yo tengo el girasol, en
+Importa porque aquí una flor «vulgar» se convierte en firma personal: «yo tengo el girasol, en
 cierto modo», escribió Vincent, y ningún otro pintor ha quedado tan indisolublemente unido a una
 flor. El amarillo sobre amarillo —un solo color primario llevado al límite— es el nacimiento de
 su estilo maduro de Arles y una declaración de hospitalidad: eran la bienvenida pintada para
@@ -42,7 +42,7 @@ convierte un ramo en serie, un gesto profundamente moderno.
 
 | # | Tipo | Texto | Fuente (chip) | Nota |
 |---|------|-------|---------------|------|
-| 1 | **myth** (mito destapado) | La imagen más famosa de Vincent pintando girasoles es mentira. Es el retrato que Gauguin hizo de él —*Van Gogh pintando girasoles*, diciembre de 1888, Museo Van Gogh—, pero la escena nunca ocurrió: la temporada de los girasoles ya había acabado y Vincent no tocó el tema en absoluto durante los dos meses que Gauguin vivió en Arles. Gauguin pintó a Vincent como quería recordarlo: en posesía de su flor. | https://www.nationalgallery.org.uk/paintings/vincent-van-gogh-sunflowers | National Gallery, ficha de la obra («The scene was imagined») |
+| 1 | **myth** (mito destapado) | La imagen más famosa de Vincent pintando girasoles es mentira. Es el retrato que Gauguin hizo de él —*Van Gogh pintando girasoles*, diciembre de 1888, Museo Van Gogh—, pero la escena nunca ocurrió: la temporada de los girasoles ya había acabado y Vincent no tocó el tema en absoluto durante los dos meses que Gauguin vivió en Arles. Gauguin pintó a Vincent como quería recordarlo: en posesión de su flor. | https://www.nationalgallery.org.uk/paintings/vincent-van-gogh-sunflowers | National Gallery, ficha de la obra («The scene was imagined») |
 | 2 | **fact** | Pintó las cuatro primeras versiones en una sola semana, contra el reloj de la flor. «Pinto con el entusiasmo de un marsellés comiendo bullabesa», le escribió a Theo, y trabajaba cada mañana desde el amanecer «porque las flores se marchitan rápido y hay que hacerlo todo de una vez». Su plan: una docena de paneles, «una sinfonía en azul y amarillo», para decorar el taller que soñaba compartir con Gauguin. | https://vangoghletters.org/vg/letters/let666/letter.html | Carta 666 a Theo (21–22 agosto 1888); describe los tres lienzos en marcha: el tercero, «claro sobre claro, y será el mejor» — el antepasado directo de esta versión |
 | 3 | **fact** | Son siete cuadros, y uno murió en la guerra. Cuatro versiones en agosto de 1888 y tres réplicas en enero de 1889 («copias absolutamente iguales e idénticas», según Vincent). Cinco cuelgan hoy en museos —Londres, Ámsterdam, Múnich, Filadelfia, Tokio—, una está en una colección privada, y la segunda versión, fondo azul real, fue destruida en 1945 por un bombardeo estadounidense en Ashiya, Japón. | https://www.nationalgallery.org.uk/paintings/vincent-van-gogh-sunflowers | National Gallery, ficha de la obra |
 | 4 | **fact** | «Jeannin tiene la peonía, Quost tiene la malva real… pero yo tengo el girasol, en cierto modo.» Gauguin se había enamorado justo de esta tela y pedía quedársela; Vincent, que le debía mucho, le ofreció repetirle una «copia idéntica» —así nacieron las réplicas de enero—, pero al final se quedó su girasol: hoy es el de Londres. Y apuntó su precio sin pudor: 500 francos, «para fundir esos oros hace falta toda la energía de uno». | https://vangoghletters.org/vg/letters/let741/letter.html | Carta 741 a Theo (22 enero 1889); la nota 11 del proyecto de cartas confirma que el codiciado era F454, este lienzo |
@@ -85,7 +85,7 @@ convierte un ramo en serie, un gesto profundamente moderno.
   los lienzos. El film insiste en la materialidad del oficio: tubos, marcos, tela sin preparar.
 - **Análisis de plano**: La elipsis que estructura el film es pura carta 741: Vincent escribió
   «mis girasoles valen 500 francos» sabiendo que nadie se los pagaba; Altman simplemente corta
-  de esa frase implícita al gavel de un siglo después. La cámara trata los cuadros como
+  de esa frase implícita al martillo de un siglo después. La cámara trata los cuadros como
   mercancía salvaje —empaquetados, clavados, subastados— y solo en las escenas de trabajo los
   deja respirar en plano fijo, como si el único lugar donde un girasol vale lo que Vincent
   decía es el caballete.
