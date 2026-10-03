@@ -1,94 +1,30 @@
-<!-- Context: project-intelligence/bridge | Priority: high | Version: 1.0 | Updated: 2025-01-12 -->
+<!-- Context: project-intelligence/bridge | Priority: high | Version: 2.0 | Updated: 2026-10-03 -->
 
 # Business ↔ Tech Bridge
 
-> Document how business needs translate to technical solutions. This is the critical connection point.
-
-## Quick Reference
-
-- **Purpose**: Show stakeholders technical choices serve business goals
-- **Purpose**: Show developers business constraints drive architecture
-- **Update When**: New features, refactoring, business pivot
+> How business promises become technical constraints. The pattern is consistent:
+> **if the ADRs say it, the schema enforces it** (migration header, verbatim).
 
 ## Core Mapping
 
-| Business Need | Technical Solution | Why This Mapping | Business Value |
-|---------------|-------------------|------------------|----------------|
-| [Users need X] | [Technical implementation] | [Why this maps] | [Value delivered] |
-| [Business wants Y] | [Technical implementation] | [Why this maps] | [Value delivered] |
-| [Compliance requires Z] | [Technical implementation] | [Why this maps] | [Value delivered] |
+| Business promise | Technical enforcement | Where |
+|------------------|----------------------|-------|
+| "Never a silent wrong answer" (0001) | Recognition deferred to Phase 3 behind four live gates; demand telemetry (`requested_via`, no `scanner_miss` yet) ships now | enum + readiness widget (partial) |
+| "Trust Wikipedia doesn't offer" (0007) | Curiosity insert requires type AND source_url — enforced in `createCuriosity` + `source_url not null` | actions.ts, schema |
+| "Claims survive link-rot" (0014) | `frame_analysis_text not null`; evidence_url is garnish | schema + `saveConnection` |
+| "Spanish is identity" (0009) | Zero localization columns; Spanish UI/error copy in code | schema + actions.ts |
+| "Editorial hours are the budget" (0006) | Launch scope 30+20; seed = 10-slice; import does metadata, never editorial | seed.sql, import script |
+| "Honest open data" (0002) | Import never fabricates IDs; P170/P571-verified; honest NULLs for non-Met works | import-external-ids.ts |
+| "The DB is the last line of defense" (0005) | Gate triggers: insert-or-update indexing gate, reference floor on delete, story-only asset block | init migration |
+| "Privacy disclosed now" (0017) | Static `/privacidad` page (zero deps, renders pre-setup) + `docs/privacy/` canonical text + Play answers draft | app route, docs/privacy |
+| "2 pushes/day, ever" (0018) | Rule lives in the sender (Phase 2); `notified_at` column ready | future sender |
+| "No episode before its Story" (0015) | Calendar must *structurally block* scheduling — making drift impossible, not forbidden | Phase-2 calendar (not yet built) |
+| "Cheap honest attribution" (0016) | Deep links + Install Referrer + plain `analytics_events` table (no SDK) | schema, episode end-cards |
 
-## Feature Mapping Examples
+## The Recurring Design Move
 
-### Feature: [Feature Name]
-
-**Business Context**:
-- User need: [What users need]
-- Business goal: [Why this matters to business]
-- Priority: [Why this was prioritized]
-
-**Technical Implementation**:
-- Solution: [What was built]
-- Architecture: [How it fits the system]
-- Trade-offs: [What was considered and why it won]
-
-**Connection**:
-[Explain clearly how the technical solution serves the business need. What would happen without this feature? What does this feature enable for the business?]
-
-### Feature: [Feature Name]
-
-**Business Context**:
-- User need: [What users need]
-- Business goal: [Why this matters to business]
-- Priority: [Why this was prioritized]
-
-**Technical Implementation**:
-- Solution: [What was built]
-- Architecture: [How it fits the system]
-- Trade-offs: [What was considered and why it won]
-
-**Connection**:
-[Explain clearly how the technical solution serves the business need.]
-
-## Trade-off Decisions
-
-When business and technical needs conflict, document the trade-off:
-
-| Situation | Business Priority | Technical Priority | Decision Made | Rationale |
-|-----------|-------------------|-------------------|---------------|-----------|
-| [Conflict] | [What business wants] | [What tech wants] | [What was chosen] | [Why this was right] |
-
-## Common Misalignments
-
-| Misalignment | Warning Signs | Resolution Approach |
-|--------------|---------------|---------------------|
-| [Type of mismatch] | [Symptoms to watch for] | [How to address] |
-
-## Stakeholder Communication
-
-This file helps translate between worlds:
-
-**For Business Stakeholders**:
-- Shows that technical investments serve business goals
-- Provides context for why certain choices were made
-- Demonstrates ROI of technical decisions
-
-**For Technical Stakeholders**:
-- Provides business context for architectural decisions
-- Shows the "why" behind constraints and requirements
-- Helps prioritize technical debt with business impact
-
-## Onboarding Checklist
-
-- [ ] Understand the core business needs this project addresses
-- [ ] See how each major feature maps to business value
-- [ ] Know the key trade-offs and why decisions were made
-- [ ] Be able to explain to stakeholders why technical choices matter
-- [ ] Be able to explain to developers why business constraints exist
-
-## Related Files
-
-- `business-domain.md` - Business needs in detail
-- `technical-domain.md` - Technical implementation in detail
-- `decisions-log.md` - Decisions made with full context
-- `living-notes.md` - Current open questions and issues
+When a business rule must hold, it is enforced **structurally** (schema trigger,
+404 gate, required field) rather than procedurally (docs, discipline, hope).
+Examples: `/obra` renders unpublished works as 404 instead of hiding links;
+the cadence calendar is specified to *block* rather than *warn*. New features
+should ask first: *"can the database make this impossible, not just forbidden?"*

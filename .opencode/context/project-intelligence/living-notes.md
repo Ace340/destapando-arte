@@ -1,114 +1,37 @@
-<!-- Context: project-intelligence/notes | Priority: high | Version: 1.0 | Updated: 2025-01-12 -->
+<!-- Context: project-intelligence/notes | Priority: high | Version: 2.0 | Updated: 2026-10-03 -->
 
 # Living Notes
 
-> Active issues, technical debt, open questions, and insights that don't fit elsewhere. Keep this alive.
+> Current state, debt, open questions. Keep alive; archive resolved items with status.
 
-## Quick Reference
+## Current State (2026-10-03)
 
-- **Purpose**: Capture current state, problems, and open questions
-- **Update**: Weekly or when status changes
-- **Archive**: Move resolved items to bottom with status
+- **Phase**: 1 — La Fundación (ADR-0012). Initial commit landed (schema, dashboard, import script, ADRs); first two-axis review done.
+- **P0 fixes applied, uncommitted**: curiosity position `max+1` (was `count+1` — collision bug); indexing gate now fires `before insert or update` + reference-floor on delete; `/privacidad` + `docs/privacy/` shipped (ADR-0017).
+- **Pending manual step**: `supabase db reset` locally to re-apply the edited init migration.
+- **Phase-1 exit check**: "end-to-end publish works" — not yet verified against a live local DB.
 
 ## Technical Debt
 
-| Item | Impact | Priority | Mitigation |
-|------|--------|----------|------------|
-| [Debt item] | [What risk it creates] | [High/Med/Low] | [How to manage] |
-
-### Technical Debt Details
-
-**[Debt Item]**  
-*Priority*: [High/Med/Low]  
-*Impact*: [What happens if not addressed]  
-*Root Cause*: [Why this debt exists]  
-*Proposed Solution*: [How to fix it]  
-*Effort*: [Small/Medium/Large]  
-*Status*: [Acknowledged | Scheduled | In Progress | Deferred]
+| Item | Impact | Priority | Status |
+|------|--------|----------|--------|
+| `advance()` moves created→enriched with no rights check (ADR-0005: "Enriched includes the rights check and image-asset attachment") | Weakens dual-track gate at the UI level (DB still holds on `indexed`) | Med | Open |
+| `~90 lines` duplicated resolve-loop skeleton in `import-external-ids.ts` | Drift risk across resolveArtists/resolveWikidata/resolveMet | Med | Open |
+| `{ artworkId, slug }` clump through every action + editor form | Noise; a bundled prop/hidden-field pair would remove ~8 repetitions | Low | Open |
+| `physical_instances.version_note` — "version" is a glossary *Avoid* word (defensible as a field) | Naming purity | Low | Open |
+| `/cuadro` route name is a non-canonical synonym (glossary avoid: "cuadro" = painting) | Cosmetic; `/obra` is the specified public route | Low | Open |
+| `.opencode/context/` template scaffolding (csharp, openagents-repo, mastra) | Context noise; wrong standards loaded for this stack | Med | Partially done — csharp + openagents-repo archived 2026-10-03; mastra-ai still in `development/ai/` |
 
 ## Open Questions
 
-| Question | Stakeholders | Status | Next Action |
-|----------|--------------|--------|-------------|
-| [Question] | [Who needs to decide] | [Open/In Progress] | [What needs to happen] |
+| Question | Stakeholders | Status |
+|----------|--------------|--------|
+| ADR-0018 OPEN: when obra del día and the digest compete for the same device-day, which spends the slot? | Patrick | Decide before Phase-2 exit |
+| Issue tracker not set up (`docs/agents/issue-tracker.md` missing) — findings live in chat/here | Patrick | Run `/setup-matt-pocock-skills` |
+| `docs/stories/` has 1 of 10 slice stories — editorial pipeline is the real critical path (ADR-0006) | Patrick | Ongoing |
 
-### Open Question Details
+## Resolved (2026-10-03)
 
-**[Question]**  
-*Context*: [Why this question matters]  
-*Stakeholders*: [Who needs to be involved]  
-*Options*: [What are the possibilities]  
-*Timeline*: [When does this need resolution]  
-*Status*: [Open/In Progress/Blocked]
-
-## Known Issues
-
-| Issue | Severity | Workaround | Status |
-|-------|----------|------------|--------|
-| [Issue] | [Critical/High/Med/Low] | [Temporary fix] | [Known/In Progress/Fixed] |
-
-### Issue Details
-
-**[Issue Title]**  
-*Severity*: [Critical/High/Med/Low]  
-*Impact*: [Who/what is affected]  
-*Reproduction*: [Steps to reproduce if applicable]  
-*Workaround*: [Temporary solution if exists]  
-*Root Cause*: [If known]  
-*Fix Plan*: [How to properly fix]  
-*Status*: [Known/In Progress/Fixed in vX.X]
-
-## Insights & Lessons Learned
-
-### What Works Well
-- [Positive pattern 1] - [Why it works]
-- [Positive pattern 2] - [Why it works]
-
-### What Could Be Better
-- [Area for improvement 1] - [Why it's a problem]
-- [Area for improvement 2] - [Why it's a problem]
-
-### Lessons Learned
-- [Lesson 1] - [Context and implication]
-- [Lesson 2] - [Context and implication]
-
-## Patterns & Conventions
-
-### Code Patterns Worth Preserving
-- [Pattern 1] - [Where it lives, why it's good]
-- [Pattern 2] - [Where it lives, why it's good]
-
-### Gotchas for Maintainers
-- [Gotcha 1] - [What to watch out for]
-- [Gotcha 2] - [What to watch out for]
-
-## Active Projects
-
-| Project | Goal | Owner | Timeline |
-|---------|------|-------|----------|
-| [Project] | [What we're doing] | [Who owns it] | [When it matters] |
-
-## Archive (Resolved Items)
-
-Moved here for historical reference. Current team should refer to current notes above.
-
-### Resolved: [Item]
-- **Resolved**: [Date]
-- **Resolution**: [What was decided/done]
-- **Learnings**: [What we learned from this]
-
-## Onboarding Checklist
-
-- [ ] Review known technical debt and understand impact
-- [ ] Know what open questions exist and who's involved
-- [ ] Understand current issues and workarounds
-- [ ] Be aware of patterns and gotchas
-- [ ] Know active projects and timelines
-- [ ] Understand the team's priorities
-
-## Related Files
-
-- `decisions-log.md` - Past decisions that inform current state
-- `business-domain.md` - Business context for current priorities
-- `technical-domain.md` - Technical context for current state
-- `business-tech-bridge.md` - Context for current trade-offs
+- ✅ Curiosity position collision — fixed with `max+1` (review finding)
+- ✅ Indexing gate INSERT bypass — trigger now `before insert or update` (review finding)
+- ✅ Privacy page/docs missing — shipped per ADR-0017 (review finding)

@@ -57,4 +57,3 @@
 ## Related
 
 - **Standards** → `../standards/navigation.md`
-- **OpenAgents Control Delegation** → `../../openagents-repo/guides/subagent-invocation.md`

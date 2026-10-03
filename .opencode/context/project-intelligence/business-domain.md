@@ -1,88 +1,55 @@
-<!-- Context: project-intelligence/business | Priority: high | Version: 1.0 | Updated: 2025-01-12 -->
+<!-- Context: project-intelligence/business | Priority: high | Version: 2.0 | Updated: 2026-10-03 -->
 
 # Business Domain
 
-> Document the business context, problems solved, and value created.
+> Canonical sources: `GLOSSARY.md` (root) and `docs/adr/`. This file distills; they decide.
 
 ## Quick Reference
 
 - **Purpose**: Understand why this project exists
-- **Update When**: Business direction changes, new features shipped, pivot
-- **Audience**: Developers needing context, stakeholders, product team
+- **Update When**: Business direction changes, new ADRs, phase transitions
+- **Audience**: Developers needing context, stakeholders
 
 ## Project Identity
 
 ```
-Project Name: [Name]
-Tagline: [One-line description]
-Problem Statement: [What problem are we solving?]
-Solution: [How we're solving it]
+Project: Destapando el Arte
+Tagline: La historia del arte que nadie te cuenta — destapada.
+Problem: Spanish-speaking audiences get art either from Wikipedia (no voice,
+  no curation, machine prose) or from entertainment content with no sources.
+Solution: One brand, two products — a YouTube channel + a Spanish-first app —
+  built on a hand-written editorial layer over open data (Met + Wikidata +
+  Commons), where every claim is typed, sourced, and curated.
 ```
+
+*Destapar* ("to uncork/expose") is the brand verb — the debunk (*mito destapado*)
+is the premium, shareable tier (ADR-0007).
 
 ## Target Users
 
-| User Segment | Who They Are | What They Need | Pain Points |
-|--------------|--------------|----------------|-------------|
-| [Primary] | [Description] | [Their needs] | [Their frustrations] |
-| [Secondary] | [Description] | [Their needs] | [Their frustrations] |
+| Segment | Who | Needs | Pain |
+|---------|-----|-------|------|
+| Primary | Spanish-speaking art-curious YouTube viewers | The story behind the painting, in Spanish, trustworthy | Wikipedia is dry/English-centric; entertainment content is unsourced |
+| Editor | Patrick (solo) | Editorial hours budgeted honestly (ADR-0006) | Import capacity ≠ enrichable stories |
 
 ## Value Proposition
 
-**For Users**:
-- [Key benefit 1]
-- [Key benefit 2]
-- [Key benefit 3]
+- **Trust combination Wikipedia doesn't offer**: sourced + typed + curated + Spanish (ADR-0007).
+- **The moat**: film connections — *the cinema that borrowed its language* — with claims that survive link-rot (ADR-0014).
+- **Honest recognition** (Phase 3): graded confidence, never a silent wrong answer (ADR-0001).
 
-**For Business**:
-- [Key value 1]
-- [Key value 2]
+## Success Metrics / Phase Gates (ADR-0012)
 
-## Success Metrics
+| Phase | Name | Exit criteria |
+|-------|------|---------------|
+| 1 | La Fundación | End-to-end publish works (dashboard, schema, import, 10 Stories drafted) |
+| 2 | La Biblioteca | 30 published + 20 in pipeline, 10 episodes, Play closed beta passed (incl. privacy, ADR-0017), attribution live |
+| 3 | El Escáner | ALL four: ≥50 published · 100% of scannable corpus with reference vectors · ≥500 installs · D7 ≥15% |
 
-| Metric | Definition | Target | Current |
-|--------|------------|--------|---------|
-| [Metric 1] | [What it measures] | [Goal] | [Actual] |
-| [Metric 2] | [What it measures] | [Goal] | [Actual] |
+Launch scope is **editorial hours**, not import capacity (ADR-0006): 30 published + 20 buffered, slice of 10, ~75 h total.
 
-## Business Model (if applicable)
+## Non-Negotiables
 
-```
-Revenue Model: [How the business makes money]
-Pricing Strategy: [If applicable]
-Unit Economics: [CAC, LTV, etc.]
-Market Position: [Where we fit in the market]
-```
-
-## Key Stakeholders
-
-| Role | Name | Responsibility | Contact |
-|------|------|----------------|---------|
-| [Product Owner] | [Name] | [What they own] | [Contact] |
-| [Tech Lead] | [Name] | [What they own] | [Contact] |
-| [Business Lead] | [Name] | [What they own] | [Contact] |
-
-## Roadmap Context
-
-**Current Focus**: [What we're working on now]
-**Next Milestone**: [Upcoming goal]
-**Long-term Vision**: [Where this is heading]
-
-## Business Constraints
-
-- [Constraint 1] - [Why it exists]
-- [Constraint 2] - [Why it exists]
-
-## Onboarding Checklist
-
-- [ ] Understand the problem statement
-- [ ] Identify target users and their needs
-- [ ] Know the key value proposition
-- [ ] Understand success metrics
-- [ ] Know who the stakeholders are
-- [ ] Understand current business constraints
-
-## Related Files
-
-- `technical-domain.md` - How this business need is solved technically
-- `business-tech-bridge.md` - Mapping between business and technical
-- `decisions-log.md` - Business decisions with context
+- Spanish, permanently — identity, not a launch decision (ADR-0009).
+- Privacy disclosed now, not patched later (ADR-0017).
+- Push blast ceiling 2/day/device, ever (ADR-0018).

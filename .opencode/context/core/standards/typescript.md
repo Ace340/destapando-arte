@@ -613,7 +613,6 @@ const [language, cfg, provider] = await Promise.all([...])
 
 ## Related Standards
 
-- **OpenCode TypeScript**: `.opencode/context/openagents-repo/standards/opencode-typescript.md` (framework-specific patterns)
 - **Code Quality**: `.opencode/context/core/standards/code-quality.md` (general quality standards)
 - **Test Coverage**: `.opencode/context/core/standards/test-coverage.md` (testing standards)
 

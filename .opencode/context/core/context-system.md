@@ -30,7 +30,7 @@ category/
 └── errors/                # Common issues
 ```
 
-**Use when**: Content is repository-specific (e.g., `openagents-repo/`)
+**Use when**: Content is repository-specific (e.g., `project-intelligence/`)
 
 #### Pattern B: Concern-Based (for development context)
 ```
@@ -99,7 +99,7 @@ Extract valuable context from AI summaries/overviews, then delete them. Workspac
 
 ### Pattern A: Function-Based (Repository-Specific)
 
-**Use for**: Repository-specific context (e.g., `openagents-repo/`)
+**Use for**: Repository-specific context (e.g., `project-intelligence/`)
 
 ```
 .opencode/context/{category}/

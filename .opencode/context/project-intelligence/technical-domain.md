@@ -1,108 +1,54 @@
-<!-- Context: project-intelligence/technical | Priority: high | Version: 1.0 | Updated: 2025-01-12 -->
+<!-- Context: project-intelligence/technical | Priority: high | Version: 2.0 | Updated: 2026-10-03 -->
 
 # Technical Domain
 
-> Document the technical foundation, architecture, and key decisions.
+> Canonical schema: `supabase/migrations/` · Canonical vocabulary: `GLOSSARY.md` · Decisions: `docs/adr/`
 
 ## Quick Reference
 
 - **Purpose**: Understand how the project works technically
-- **Update When**: New features, refactoring, tech stack changes
-- **Audience**: Developers, DevOps, technical stakeholders
+- **Update When**: Stack, structure, or enforcement changes
+- **Audience**: Developers, agents touching code or schema
 
 ## Primary Stack
 
-| Layer | Technology | Version | Rationale |
-|-------|-----------|---------|-----------|
-| Language | [e.g., TypeScript] | [Version] | [Why this language] |
-| Framework | [e.g., Node.js] | [Version] | [Why this framework] |
-| Database | [e.g., PostgreSQL] | [Version] | [Why this database] |
-| Infrastructure | [e.g., AWS, Vercel] | [N/A] | [Why this infra] |
-| Key Libraries | [List important ones] | [Versions] | [Why each matters] |
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Language | TypeScript | Standards: `core/standards/typescript.md` |
+| Framework | Next.js (App Router) on Vercel | ⚠️ **NOT the Next.js you know** — read `apps/dashboard/AGENTS.md` and `node_modules/next/dist/docs/` before writing code |
+| Database | Supabase (Postgres + RLS) | Writes go **server-side only** via the secret key; anon/publishable reads are deny-by-default except the public policies |
+| Lint | ESLint 9 + eslint-config-next | `npm run lint` in `apps/dashboard` |
 
 ## Architecture Pattern
 
-```
-Type: [Monolith | Microservices | Serverless | Agent-based | Hybrid]
-Pattern: [Brief description]
-Diagram: [Link to architecture diagram if exists]
-```
-
-### Why This Architecture?
-
-[Explain the business and technical reasons for this architecture choice. What problem does this architecture solve? What were alternatives considered?]
-
-## Project Structure
+Single Next.js app serves two surfaces on one domain (ADR-0011):
 
 ```
-[Project Root]
-├── src/                    # Source code
-├── tests/                  # Test files
-├── docs/                   # Documentation
-├── scripts/                # Build/deploy scripts
-└── [Other key directories]
+apps/dashboard/
+├── /                    → editorial home (Catálogo list, readiness counter)
+├── /cuadro/[slug]       → editor for one Artwork (private in spirit, no auth in Phase 1)
+├── /obra/[slug]         → PUBLIC read-only Story page (404 unless published — query-side mirror of RLS)
+├── /privacidad          → PUBLIC static privacy page (ADR-0017; renders with zero setup)
+├── src/lib/actions.ts   → mutations, one per editorial act ('use server')
+├── src/lib/artworks.ts  → queries (server-only)
+└── src/components/      → badges, editors, setup notice
+scripts/import-external-ids.ts → Met/Wikidata import; never fabricates IDs, honest NULLs (ADR-0002)
 ```
 
-**Key Directories**:
-- `src/` - Contains all application logic organized by [module/feature/domain]
-- `tests/` - [How tests are organized]
-- `docs/` - [What documentation lives here]
+### The database is the last line of defense
 
-## Key Technical Decisions
+Every ADR that can be enforced in schema, is — via triggers in the init migration:
 
-| Decision | Rationale | Impact |
-|----------|-----------|--------|
-| [Decision 1] | [Why this choice] | [What it enables] |
-| [Decision 2] | [Why this choice] | [What it enables] |
+- `artworks_indexing_gate` (before insert or update): `indexed` requires published + not rights-blocked + ≥3 reference assets (ADR-0005)
+- `image_assets_reference_floor` (after delete): can't delete references below the 3-floor of an indexed artwork — un-index first, explicitly
+- `image_assets_story_only` (before insert): rights-blocked artworks take no reference assets (ADR-0012 rider)
+- `artworks_touch` (before update): `updated_at`
 
-See `decisions-log.md` for full decision history with alternatives.
+Dual track: `story_status` (created → enriched → draft → published, forward-only, terminal) is independent of `indexed` (ADR-0005). The Artwork collapses versions into `physical_instances` (ADR-0004); recognition can never target an instance.
 
-## Integration Points
+## Conventions That Bind Code
 
-| System | Purpose | Protocol | Direction |
-|--------|---------|----------|-----------|
-| [API 1] | [What it does] | [REST/GraphQL/gRPC] | [Inbound/Outbound] |
-| [Database] | [What it stores] | [PostgreSQL/Mongo/etc] | [Internal] |
-| [Service] | [What it provides] | [HTTP/gRPC] | [Outbound] |
-
-## Technical Constraints
-
-| Constraint | Origin | Impact |
-|------------|--------|--------|
-| [Legacy systems] | [Business/Tech] | [What limitation it creates] |
-| [Compliance] | [Regulation] | [What must be followed] |
-| [Performance] | [SLAs] | [What must be met] |
-
-## Development Environment
-
-```
-Setup: [Quick setup command or link]
-Requirements: [What developers need installed]
-Local Dev: [How to run locally]
-Testing: [How to run tests]
-```
-
-## Deployment
-
-```
-Environment: [Production/Staging/Development]
-Platform: [Where it deploys]
-CI/CD: [Pipeline used]
-Monitoring: [Tools for observability]
-```
-
-## Onboarding Checklist
-
-- [ ] Know the primary tech stack
-- [ ] Understand the architecture pattern and why it was chosen
-- [ ] Know the key project directories and their purpose
-- [ ] Understand major technical decisions and rationale
-- [ ] Know integration points and dependencies
-- [ ] Be able to set up local development environment
-- [ ] Know how to run tests and deploy
-
-## Related Files
-
-- `business-domain.md` - Why this technical foundation exists
-- `business-tech-bridge.md` - How business needs map to technical solutions
-- `decisions-log.md` - Full decision history with context
+- **Spanish-first**: UI copy, entity names, error messages in `actions.ts` are Spanish; zero localization columns, ever (ADR-0009).
+- **Glossary naming**: `artworks` not paintings/works; `curiosities` typed+sourced; `film_connections` with mandatory `frame_analysis_text` (ADR-0014). Avoid-lists live in `GLOSSARY.md`.
+- **Public truth gate**: only `story_status = 'published'` exists at `/obra/*`; RLS + the `published()` helper agree.
+- **No `.env` or secrets committed**; `isConfigured()` guard renders `SetupNotice` pre-setup.
