@@ -1,7 +1,7 @@
 # Story draft — Autorretrato (Van Gogh, Orsay)
 
-Estado: **borrador para pluma editorial (Patrick)** · Fuentes verificadas en vivo: 2026-10-04
-Slug: `autorretrato-van-gogh` · Tras la carga prevista: `story_status = draft` (published solo con el OK final)
+Estado: **PUBLICADO (2026-10-04, 16:44 UTC)** · Pluma editorial: aprobado tal cual, revisión sección por sección (beats, curiosidades ×5, conexiones, paleta/enriquecimiento) · Fuentes verificadas en vivo: 2026-10-04
+Slug: `autorretrato-van-gogh` · Carga: `supabase/story-loads/autorretrato-van-gogh.sql` (draft → published con el OK de Patrick)
 
 Cada curiosidad lleva tipo + fuente (ADR-0007). Cada conexión lleva análisis de plano (ADR-0014).
 Todo el copy es español (ADR-0009). La ficha del Orsay devolvió 403 al fetch directo (bloqueo de
