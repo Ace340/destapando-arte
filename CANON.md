@@ -176,3 +176,22 @@ Goal (Patrick): "do all the stories and publish them" — the remaining six, via
 3. **Re-verificación manual pendiente**: fichas del Mauritshuis (403) y del Prado (403) — datos confirmados por vías alternas, pero la cita directa queda pendiente para cuando el fetcher pase el muro o se haga a mano.
 4. **Correcciones menores flaggeadas** (no bloquean nada publicado): datación canónica de la-lechera en el seed (c. 1658 vs c. 1660); medidas de las-meninas si se citan en app.
 5. Carried unchanged: push slot collision (ADR-0018), external ledger reconciliation (this file).
+
+## Phase 2 kickoff session (2026-10-08) — `apps/mobile/` scaffold + reading surface (Increment 11)
+
+Gate: ADR-0012 Phase 2 open since 10/10 published. Patrick picked the mobile scaffold as the first Phase 2 move; **self-contained structure (no root workspaces)** his call at the gate — each app keeps its own install, dashboard untouched.
+
+- **Scaffold**: Expo SDK 57 (default template = TypeScript + Expo Router, `src/app/`; Node 24 fine, Watchman obsolete since SDK 56). `@supabase/supabase-js` + `@react-native-async-storage/async-storage` via `npx expo install`. Template demo cruft removed (demo tabs/explore/screens, LICENSE, reset-project). `app.json`: "Destapando el Arte", `com.destapandoelarte.app`, scheme `destapandoelarte`, light-only, neutral splash.
+- **Data layer mirrors dashboard**: `src/lib/types.ts` is a copy of the migration contract (both change in the same commit — no drift); lazy-singleton client but **anon/publishable key only** (RLS-respecting; the secret key never ships in a binary); `artworks.ts` reads are published-only — the query-side public-truth gate mirroring `/obra`.
+- **Screens**: Catálogo (published list, palette stripes) + Historia `[slug]` — same section order and labels as web `/obra` (¿Qué es? → ¿Por qué importa? → Curiosidades → El cine → La historia completa → episodio; badges dato/mito destapado/leyenda), "Obra no encontrada" gate for anything unpublished. Fuente/escena links via expo-web-browser. **No images anywhere yet** — parity with the web surface; palette theming covers las-dos-fridas (story-only, ADR-0003). **Avísame NOT in-app**: writes have no anon policies by design (ADR — server-side writes); needs a server route, deferred.
+- **Verified**: tsc + expo lint clean (one approved fix: `react-hooks/set-state-in-effect` → `.then/.catch` + cancelled flag, which also fixed an unmount race), expo-doctor 21/21, dev server boots (Metro :8081, left running, log `.tmp/mobile-devserver.log`), and a **live REST check with the publishable key: 10 published visible / 0 unpublished** — the RLS public surface works exactly as the app will consume it.
+- **Patrick's manual step pending**: create `apps/mobile/.env` by hand — `EXPO_PUBLIC_SUPABASE_URL` (`http://10.0.2.2:54321` for emulator, `http://127.0.0.1:54321` for web testing) + `EXPO_PUBLIC_SUPABASE_ANON_KEY` (from `supabase status`), then restart `npx expo start` (EXPO_PUBLIC_ vars inline at bundle time). Until then the app shows the Spanish SetupNotice — expected first-run state. Root `.gitignore` (`.env*`) already covers the new file.
+- **External docs cached**: `.tmp/external-context/expo/` (SDK 57: Node 22.13+ min, create-expo-app now generates AGENTS.md, FCM v1-only for push, EAS free tier 15+15 builds/mo → Play internal-track closed beta fits the Phase 2 exit).
+
+**Next steps (queue — reorder is Patrick's call):**
+
+1. **Patrick**: hand-create `apps/mobile/.env` → first real-data run (web or emulator), then the deferred **code review** of the scaffold (his call for next session).
+2. Next mobile increments: Avísame server route (dashboard route handler or Edge Function — schema's `push_token` column awaits), obra del día (deterministic algorithm or new migration — schema rule: table ↔ glossary term + ADR citation), push sender (ADR-0018 open decision), EAS project + Play internal track.
+3. Standing editorial items unchanged: `why_special` ×5, Avísame click-test (web), frame-analysis passes (9 films).
+4. Re-verification manual pendiente: Mauritshuis + Prado fichas (403).
+5. Carried: push slot collision (ADR-0018), external ledger reconciliation (this file).
