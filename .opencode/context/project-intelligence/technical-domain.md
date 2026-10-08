@@ -1,4 +1,4 @@
-<!-- Context: project-intelligence/technical | Priority: high | Version: 2.0 | Updated: 2026-10-03 -->
+<!-- Context: project-intelligence/technical | Priority: high | Version: 2.1 | Updated: 2026-10-08 -->
 
 # Technical Domain
 
@@ -12,16 +12,36 @@
 
 ## Primary Stack
 
+Monorepo with two apps (`apps/dashboard`, `apps/mobile`) sharing one Supabase backend.
+
+**Shared:**
+
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Language | TypeScript | Standards: `core/standards/typescript.md` |
-| Framework | Next.js (App Router) on Vercel | ⚠️ **NOT the Next.js you know** — read `apps/dashboard/AGENTS.md` and `node_modules/next/dist/docs/` before writing code |
 | Database | Supabase (Postgres + RLS) | Writes go **server-side only** via the secret key; anon/publishable reads are deny-by-default except the public policies |
+| Mobile data | `@supabase/supabase-js` + AsyncStorage | Sessions/local persistence on device |
+
+**Dashboard (`apps/dashboard`):**
+
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Framework | Next.js (App Router) on Vercel | ⚠️ **NOT the Next.js you know** — read `apps/dashboard/AGENTS.md` and `node_modules/next/dist/docs/` before writing code |
 | Lint | ESLint 9 + eslint-config-next | `npm run lint` in `apps/dashboard` |
+
+**Mobile (`apps/mobile`):**
+
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Framework | Expo SDK 57 (React Native 0.86.3, React 19.2.3) | ⚠️ **SDK 57 breaks from training data** — read `apps/mobile/AGENTS.md` and fetch versioned docs (https://docs.expo.dev/versions/v57.0.0/) before writing code |
+| Navigation | Expo Router ~57 | File-based; routes in `src/app/`, `_layout.tsx` = navigators; non-route code outside `src/app/` |
+| Animation/UI | Reanimated 4.5 + worklets, Gesture Handler, SafeArea/Screens | Prefer first-party Expo modules over third-party |
+| Native builds | CNG + EAS | No `ios/`/`android/` dirs — never hand-edit; builds via `eas build`, no local Xcode/Android Studio |
+| Lint | ESLint 9 + eslint-config-expo | `npm run lint`, `npm run typecheck` (`tsc --noEmit`) in `apps/mobile` |
 
 ## Architecture Pattern
 
-Single Next.js app serves two surfaces on one domain (ADR-0011):
+Two apps, one backend: Next.js serves the editorial + public web surfaces on one domain (ADR-0011); Expo serves the reader-facing mobile app against the same Supabase instance.
 
 ```
 apps/dashboard/
@@ -32,6 +52,7 @@ apps/dashboard/
 ├── src/lib/actions.ts   → mutations, one per editorial act ('use server')
 ├── src/lib/artworks.ts  → queries (server-only)
 └── src/components/      → badges, editors, setup notice
+apps/mobile/             → Expo scaffold (SDK 57); details in apps/mobile/AGENTS.md
 scripts/import-external-ids.ts → Met/Wikidata import; never fabricates IDs, honest NULLs (ADR-0002)
 ```
 
