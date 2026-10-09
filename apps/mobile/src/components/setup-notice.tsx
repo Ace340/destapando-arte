@@ -1,4 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+import { useTheme } from '@/lib/theme'
 
 // Shown when Supabase env vars are missing — mirrors the dashboard's
 // SetupNotice pattern with the mobile-specific steps.
@@ -11,18 +14,30 @@ const STEPS: readonly string[] = [
 ]
 
 export function SetupNotice() {
+  const theme = useTheme()
+  const insets = useSafeAreaInsets()
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Conecta Supabase</Text>
-      <Text style={styles.lead}>La app necesita su base de datos. Cinco pasos y estás dentro:</Text>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.bg,
+          paddingTop: insets.top + 40,
+        },
+      ]}
+    >
+      <Text style={[styles.title, { color: theme.text }]}>Conecta Supabase</Text>
+      <Text style={[styles.lead, { color: theme.muted }]}>
+        La app necesita su base de datos. Cinco pasos y estás dentro:
+      </Text>
       <View style={styles.steps}>
         {STEPS.map((step) => (
-          <Text key={step} style={styles.step}>
+          <Text key={step} style={[styles.step, { color: theme.body }]}>
             {'\u2022'} {step}
           </Text>
         ))}
       </View>
-      <Text style={styles.note}>
+      <Text style={[styles.note, { color: theme.faint }]}>
         La clave anon respeta RLS: la app solo ve obras publicadas y nunca escribe directo.
       </Text>
     </View>

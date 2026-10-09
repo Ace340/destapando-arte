@@ -1,15 +1,37 @@
 import { useLocalSearchParams } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
 import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+  useWindowDimensions,
+} from 'react-native'
+import Animated, {
+  runOnJS,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CuriosityBadge } from '@/components/curiosity-badge'
-import { PaletteStripe } from '@/components/palette-stripe'
-import { get, type StoryBundle } from '@/lib/artworks'
+import { Hero } from '@/components/hero'
+import { HEADER_CONTENT_HEIGHT, StoryHeader } from '@/components/story-header'
+import { get, heroCredit, heroSource, type StoryBundle } from '@/lib/artworks'
 import { message } from '@/lib/error'
+import { useTheme } from '@/lib/theme'
 
-// Public truth gate — mirror of the web /obra/[slug] page: only published
-// works exist here. Everything else is "Obra no encontrada" (the app-side 404).
+// The reading surface (ADR-0020): art-first Hero, Story scrolls up beneath
+// it, collapsing header once the title is gone. Public truth gate — mirror
+// of the web /obra/[slug] page: only published works exist here; everything
+// else is "Obra no encontrada".
+
+const HERO_FRACTION = 0.62
 
 type State =
   | { kind: 'loading' }
@@ -20,6 +42,33 @@ type State =
 export default function Historia() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
   const [state, setState] = useState<State>({ kind: 'loading' })
+  const theme = useTheme()
+  const scheme = useColorScheme()
+  const insets = useSafeAreaInsets()
+  const { height: windowHeight } = useWindowDimensions()
+
+  const heroHeight = Math.round(windowHeight * HERO_FRACTION)
+  const showHeaderAt = heroHeight - (insets.top + HEADER_CONTENT_HEIGHT) - 24
+
+  const [headerVisible, setHeaderVisible] = useState(false)
+  const passedThreshold = useSharedValue(false)
+  const scrollY = useSharedValue(0)
+
+  const onScroll = useAnimatedScrollHandler((event) => {
+    const y = event.contentOffset.y
+    scrollY.value = y
+    const shouldShow = y > showHeaderAt
+    if (shouldShow !== passedThreshold.value) {
+      passedThreshold.value = shouldShow
+      runOnJS(setHeaderVisible)(shouldShow)
+    }
+  })
+
+  // Parallax: the hero scrolls at half speed; the gradient base layer inside
+  // the Hero keeps the frame covered while the image lags behind.
+  const heroStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: scrollY.value * 0.5 }],
+  }))
 
   useEffect(() => {
     if (typeof slug !== 'string' || !slug) return
@@ -38,122 +87,145 @@ export default function Historia() {
 
   if (state.kind === 'loading') {
     return (
-      <View style={styles.screen}>
-        <ActivityIndicator style={styles.center} size="large" color="#52525B" />
+      <View style={[styles.screen, { backgroundColor: theme.bg }]}>
+        <ActivityIndicator style={styles.center} size="large" color={theme.muted} />
       </View>
     )
   }
 
-  if (state.kind === 'notFound') {
+  if (state.kind === 'notFound' || state.kind === 'error') {
     return (
-      <View style={styles.screen}>
-        <Text style={styles.brand}>Destapando el Arte</Text>
-        <Text style={styles.title}>Obra no encontrada</Text>
-        <Text style={styles.body}>
-          Aquí solo existen las historias publicadas. Vuelve al catálogo y elige otra obra.
+      <View style={[styles.screen, { backgroundColor: theme.bg, padding: 24, paddingTop: insets.top + 40 }]}>
+        <Text style={[styles.brand, { color: theme.faint }]}>Destapando el Arte</Text>
+        <Text style={[styles.plainTitle, { color: theme.text }]}>
+          {state.kind === 'notFound' ? 'Obra no encontrada' : 'Algo falló'}
         </Text>
-      </View>
-    )
-  }
-
-  if (state.kind === 'error') {
-    return (
-      <View style={styles.screen}>
-        <Text style={styles.brand}>Destapando el Arte</Text>
-        <Text style={styles.title}>Algo falló</Text>
-        <Text style={styles.body}>{state.message}</Text>
+        <Text style={[styles.body, { color: theme.muted }]}>
+          {state.kind === 'notFound'
+            ? 'Aquí solo existen las historias publicadas. Vuelve al catálogo y elige otra obra.'
+            : state.message}
+        </Text>
       </View>
     )
   }
 
   const { artwork, curiosities, connections } = state.bundle
   const artistName = artwork.artists?.name
+  const metaLine = [artistName, artwork.year].filter(Boolean).join(' · ')
+  const credit = heroCredit(artwork)
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.screen}>
-      <Text style={styles.brand}>Destapando el Arte</Text>
-      <Text style={styles.title}>{artwork.title_es}</Text>
-      <Text style={styles.meta}>
-        {artistName}
-        {artwork.year ? ` · ${artwork.year}` : ''}
-      </Text>
-      <PaletteStripe palette={artwork.palette} />
+    <View style={[styles.screen, { backgroundColor: theme.bg }]}>
+      {/* Light icons over the hero; switch to theme icons once the header
+          surface covers the status bar. */}
+      <StatusBar
+        style={
+          headerVisible ? (scheme === 'dark' ? 'light' : 'dark') : 'light'
+        }
+      />
+      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={styles.scrollContent}>
+        <Hero
+          source={heroSource(artwork)}
+          palette={artwork.palette}
+          title={artwork.title_es}
+          meta={metaLine}
+          accentFallback={theme.accentFallback}
+          height={heroHeight}
+          style={heroStyle}
+        />
+        <View style={styles.content}>
+          {credit ? <Text style={[styles.credit, { color: theme.faint }]}>Imagen: {credit}</Text> : null}
 
-      {artwork.summary ? (
-        <Section title="¿Qué es?">
-          <Text style={styles.body}>{artwork.summary}</Text>
-        </Section>
-      ) : null}
+          {artwork.summary ? (
+            <Section title="¿Qué es?">
+              <Text style={[styles.body, { color: theme.body }]}>{artwork.summary}</Text>
+            </Section>
+          ) : null}
 
-      {artwork.why_it_matters ? (
-        <Section title="¿Por qué importa?">
-          <Text style={styles.body}>{artwork.why_it_matters}</Text>
-        </Section>
-      ) : null}
+          {artwork.why_it_matters ? (
+            <Section title="¿Por qué importa?">
+              <Text style={[styles.body, { color: theme.body }]}>{artwork.why_it_matters}</Text>
+            </Section>
+          ) : null}
 
-      {curiosities.length > 0 ? (
-        <Section title="Curiosidades que nadie te cuenta">
-          {curiosities.map((curiosity) => (
-            <View key={curiosity.id} style={styles.card}>
-              <CuriosityBadge type={curiosity.type} />
-              <Text style={styles.body}>{curiosity.text}</Text>
-              <SourceLink url={curiosity.source_url} label="fuente" />
-            </View>
-          ))}
-        </Section>
-      ) : null}
+          {curiosities.length > 0 ? (
+            <Section title="Curiosidades que nadie te cuenta">
+              {curiosities.map((curiosity) => (
+                <View
+                  key={curiosity.id}
+                  style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+                >
+                  <CuriosityBadge type={curiosity.type} />
+                  <Text style={[styles.body, { color: theme.body }]}>{curiosity.text}</Text>
+                  <SourceLink url={curiosity.source_url} label="fuente" />
+                </View>
+              ))}
+            </Section>
+          ) : null}
 
-      {connections.length > 0 ? (
-        <Section title="El cine que tomó prestado su lenguaje">
-          {connections.map((connection) => (
-            <View key={connection.id} style={styles.card}>
-              <Text style={styles.filmTitle}>
-                {connection.films?.title}
-                {connection.films?.year ? ` (${connection.films.year})` : ''}
-                {connection.films?.director ? ` — dir. ${connection.films.director}` : ''}
-              </Text>
-              <Text style={styles.borrowed}>{connection.what_it_borrowed}</Text>
-              <Text style={styles.body}>{connection.frame_analysis_text}</Text>
-              {connection.evidence_url && connection.evidence_visual !== 'none' ? (
-                <SourceLink url={connection.evidence_url} label="ver la escena" />
-              ) : null}
-            </View>
-          ))}
-        </Section>
-      ) : null}
+          {connections.length > 0 ? (
+            <Section title="El cine que tomó prestado su lenguaje">
+              {connections.map((connection) => (
+                <View
+                  key={connection.id}
+                  style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+                >
+                  <Text style={[styles.filmTitle, { color: theme.text }]}>
+                    {connection.films?.title}
+                    {connection.films?.year ? ` (${connection.films.year})` : ''}
+                    {connection.films?.director ? ` — dir. ${connection.films.director}` : ''}
+                  </Text>
+                  <Text style={[styles.borrowed, { color: theme.muted }]}>{connection.what_it_borrowed}</Text>
+                  <Text style={[styles.body, { color: theme.body }]}>{connection.frame_analysis_text}</Text>
+                  {connection.evidence_url && connection.evidence_visual !== 'none' ? (
+                    <SourceLink url={connection.evidence_url} label="ver la escena" />
+                  ) : null}
+                </View>
+              ))}
+            </Section>
+          ) : null}
 
-      {artwork.essay ? (
-        <Section title="La historia completa">
-          <Text style={styles.body}>{artwork.essay}</Text>
-        </Section>
-      ) : null}
+          {artwork.essay ? (
+            <Section title="La historia completa">
+              <Text style={[styles.body, { color: theme.body }]}>{artwork.essay}</Text>
+            </Section>
+          ) : null}
 
-      {artwork.episode_youtube_id ? (
-        <Pressable
-          style={({ pressed }) => [styles.episodeButton, pressed && styles.pressed]}
-          onPress={() => void WebBrowser.openBrowserAsync(episodeUrl(artwork.episode_youtube_id!))}
-        >
-          <Text style={styles.episodeText}>▶ Ver el episodio</Text>
-        </Pressable>
-      ) : null}
-    </ScrollView>
+          {artwork.episode_youtube_id ? (
+            <Pressable
+              style={({ pressed }) => [
+                styles.episodeButton,
+                { backgroundColor: theme.episode },
+                pressed && styles.pressed,
+              ]}
+              onPress={() => void WebBrowser.openBrowserAsync(episodeUrl(artwork.episode_youtube_id!))}
+            >
+              <Text style={styles.episodeText}>▶ Ver el episodio</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      </Animated.ScrollView>
+      <StoryHeader visible={headerVisible} title={artwork.title_es} theme={theme} />
+    </View>
   )
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const theme = useTheme()
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
       <View style={styles.sectionBody}>{children}</View>
     </View>
   )
 }
 
 function SourceLink({ url, label }: { url: string; label: string }) {
+  const theme = useTheme()
   return (
     <Pressable onPress={() => void WebBrowser.openBrowserAsync(url)}>
       {({ pressed }) => (
-        <Text style={[styles.sourceLink, pressed && styles.pressed]}>{label}</Text>
+        <Text style={[styles.sourceLink, { color: theme.link }, pressed && styles.pressed]}>{label}</Text>
       )}
     </Pressable>
   )
@@ -164,79 +236,74 @@ function episodeUrl(id: string): string {
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   screen: {
-    padding: 24,
-    paddingTop: 64,
+    flex: 1,
+  },
+  scrollContent: {
     paddingBottom: 48,
+  },
+  content: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
   },
   center: {
     marginTop: 48,
   },
   brand: {
+    fontFamily: 'Inter_500Medium',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 2,
     textTransform: 'uppercase',
-    color: '#A1A1AA',
   },
-  title: {
+  plainTitle: {
     marginTop: 8,
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 28,
-    fontWeight: '600',
-    color: '#18181B',
   },
-  meta: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontSize: 15,
-    color: '#52525B',
+  credit: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 12,
+    marginBottom: 4,
   },
   section: {
     marginTop: 32,
     gap: 10,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#18181B',
+    fontFamily: 'Fraunces_600SemiBold',
+    fontSize: 20,
   },
   sectionBody: {
     gap: 14,
   },
   card: {
     borderWidth: 1,
-    borderColor: '#E4E4E7',
     borderRadius: 10,
     padding: 14,
     gap: 8,
   },
   body: {
+    fontFamily: 'Inter_400Regular',
     fontSize: 16,
     lineHeight: 26,
-    color: '#27272A',
   },
   filmTitle: {
+    fontFamily: 'Inter_500Medium',
     fontSize: 15,
-    fontWeight: '600',
-    color: '#18181B',
   },
   borrowed: {
+    fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: '#52525B',
   },
   sourceLink: {
+    fontFamily: 'Inter_500Medium',
     fontSize: 13,
-    color: '#0369A1',
     textDecorationLine: 'underline',
     alignSelf: 'flex-start',
   },
   episodeButton: {
     marginTop: 40,
-    backgroundColor: '#B91C1C',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -244,8 +311,8 @@ const styles = StyleSheet.create({
   },
   episodeText: {
     color: '#FFFFFF',
+    fontFamily: 'Inter_500Medium',
     fontSize: 15,
-    fontWeight: '500',
   },
   pressed: {
     opacity: 0.6,

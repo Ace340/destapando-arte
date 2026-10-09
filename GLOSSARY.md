@@ -50,6 +50,10 @@ The debunk — the legend says X, the evidence says Y. The brand verb as a conte
 **Obra del día**:
 The daily editorial pick, pushed with curiosity-gap copy; the reading screen takes its accent colors from the painting's own palette.
 
+**Hero**:
+The full-bleed reproduction opening the reading surface; the Story scrolls up beneath it. Falls back to the artwork's palette gradient when the work is story-only (rights-blocked, no image assets).
+_Avoid_: banner, cover
+
 **Colección**:
 A hand-curated, ordered grouping with one voice paragraph ("El canon español," "Luz y sombra").
 _Avoid_: playlist, category

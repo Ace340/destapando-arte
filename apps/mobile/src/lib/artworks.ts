@@ -1,5 +1,6 @@
 import { db } from './supabase'
-import type { Artwork, Artist, Curiosity, Film, FilmConnection } from './types'
+import { displayUrl } from './image-url'
+import type { Artwork, Artist, Curiosity, Film, FilmConnection, ImageAsset } from './types'
 
 // Public reads through the anon key. RLS already hides unpublished works;
 // the explicit `story_status = 'published'` filter is the query-side mirror
@@ -7,6 +8,7 @@ import type { Artwork, Artist, Curiosity, Film, FilmConnection } from './types'
 
 export interface CatalogRow extends Artwork {
   artists: Pick<Artist, 'slug' | 'name'> | null
+  image_assets: Pick<ImageAsset, 'kind' | 'source_url' | 'credit'>[] | null
 }
 
 export interface ConnectionRow extends FilmConnection {
@@ -19,10 +21,23 @@ export interface StoryBundle {
   connections: ConnectionRow[]
 }
 
+// The Hero source (ADR-0020, GLOSSARY Hero): the display asset through the
+// Commons FilePath redirect. Null when the work is story-only (ADR-0003) —
+// the caller falls back to the palette gradient.
+export function heroSource(artwork: CatalogRow, width = 1080): string | null {
+  const display = artwork.image_assets?.find((asset) => asset.kind === 'display')
+  return display ? displayUrl(display.source_url, width) : null
+}
+
+// ADR-0016 attribution: cheap and honest — the display asset's credit line.
+export function heroCredit(artwork: CatalogRow): string | null {
+  return artwork.image_assets?.find((asset) => asset.kind === 'display')?.credit ?? null
+}
+
 export async function list(): Promise<CatalogRow[]> {
   const { data, error } = await db()
     .from('artworks')
-    .select('*, artists(slug, name)')
+    .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
     .eq('story_status', 'published')
     .order('title_es')
   if (error) throw new Error(`Catálogo: ${error.message}`)
@@ -32,7 +47,7 @@ export async function list(): Promise<CatalogRow[]> {
 export async function get(slug: string): Promise<StoryBundle | null> {
   const { data, error } = await db()
     .from('artworks')
-    .select('*, artists(slug, name)')
+    .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
     .eq('slug', slug)
     .eq('story_status', 'published')
     .maybeSingle()

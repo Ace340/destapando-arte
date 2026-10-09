@@ -41,6 +41,17 @@ export interface Artwork {
   updated_at: string
 }
 
+export type ImageKind = 'display' | 'reference'
+
+export interface ImageAsset {
+  id: string
+  artwork_id: string
+  kind: ImageKind
+  source_url: string
+  credit: string | null
+  created_at: string
+}
+
 export interface Curiosity {
   id: string
   artwork_id: string

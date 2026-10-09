@@ -1,11 +1,13 @@
 import { Link } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { PaletteStripe } from '@/components/palette-stripe'
+import { ArtworkThumb } from '@/components/artwork-thumb'
 import { SetupNotice } from '@/components/setup-notice'
+import { heroSource, list, type CatalogRow } from '@/lib/artworks'
 import { isConfigured } from '@/lib/supabase'
-import { list, type CatalogRow } from '@/lib/artworks'
+import { useTheme } from '@/lib/theme'
 import { message } from '@/lib/error'
 
 type State =
@@ -14,6 +16,8 @@ type State =
   | { kind: 'ready'; artworks: CatalogRow[] }
 
 export default function Catalogo() {
+  const theme = useTheme()
+  const insets = useSafeAreaInsets()
   const [state, setState] = useState<State>({ kind: 'loading' })
 
   useEffect(() => {
@@ -34,18 +38,18 @@ export default function Catalogo() {
   if (!isConfigured()) return <SetupNotice />
 
   return (
-    <View style={styles.screen}>
-      <Text style={styles.brand}>Destapando el Arte</Text>
-      <Text style={styles.subtitle}>Las historias detrás de los cuadros</Text>
+    <View style={[styles.screen, { backgroundColor: theme.bg, paddingTop: insets.top + 12 }]}>
+      <Text style={[styles.brand, { color: theme.faint }]}>Destapando el Arte</Text>
+      <Text style={[styles.subtitle, { color: theme.text }]}>Las historias detrás de los cuadros</Text>
       {state.kind === 'loading' ? (
-        <ActivityIndicator style={styles.center} size="large" color="#52525B" />
+        <ActivityIndicator style={styles.center} size="large" color={theme.muted} />
       ) : null}
-      {state.kind === 'error' ? <Text style={styles.error}>{state.message}</Text> : null}
+      {state.kind === 'error' ? <Text style={[styles.error, { color: theme.episode }]}>{state.message}</Text> : null}
       {state.kind === 'ready' ? (
         <FlatList
           data={state.artworks}
           keyExtractor={(artwork) => artwork.id}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={() => <View style={[styles.separator, { backgroundColor: theme.border }]} />}
           renderItem={({ item }) => <CatalogRowItem artwork={item} />}
           contentContainerStyle={styles.list}
         />
@@ -55,6 +59,7 @@ export default function Catalogo() {
 }
 
 function CatalogRowItem({ artwork }: { artwork: CatalogRow }) {
+  const theme = useTheme()
   const artist = artwork.artists?.name
   return (
     <Link
@@ -62,14 +67,18 @@ function CatalogRowItem({ artwork }: { artwork: CatalogRow }) {
       asChild
     >
       <Pressable style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}>
+        <ArtworkThumb
+          source={heroSource(artwork, 240)}
+          palette={artwork.palette}
+          slug={artwork.slug}
+        />
         <View style={styles.rowText}>
-          <Text style={styles.title}>{artwork.title_es}</Text>
-          <Text style={styles.meta}>
+          <Text style={[styles.title, { color: theme.text }]}>{artwork.title_es}</Text>
+          <Text style={[styles.meta, { color: theme.muted }]}>
             {artist}
             {artwork.year ? ` · ${artwork.year}` : ''}
           </Text>
         </View>
-        <PaletteStripe palette={artwork.palette} height={40} />
       </Pressable>
     </Link>
   )
@@ -78,22 +87,19 @@ function CatalogRowItem({ artwork }: { artwork: CatalogRow }) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
-    paddingTop: 64,
   },
   brand: {
+    fontFamily: 'Inter_500Medium',
     fontSize: 13,
     fontWeight: '600',
     letterSpacing: 2,
     textTransform: 'uppercase',
-    color: '#A1A1AA',
   },
   subtitle: {
     marginTop: 4,
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#18181B',
+    fontFamily: 'Fraunces_600SemiBold',
+    fontSize: 24,
   },
   center: {
     marginTop: 48,
@@ -101,33 +107,33 @@ const styles = StyleSheet.create({
   error: {
     marginTop: 24,
     fontSize: 14,
-    color: '#B91C1C',
   },
   list: {
     paddingTop: 16,
     paddingBottom: 32,
   },
   row: {
-    paddingVertical: 14,
-    gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 12,
   },
   rowPressed: {
     opacity: 0.6,
   },
   rowText: {
+    flex: 1,
     gap: 2,
   },
   title: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 17,
-    fontWeight: '600',
-    color: '#18181B',
   },
   meta: {
+    fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: '#52525B',
   },
   separator: {
     height: 1,
-    backgroundColor: '#F4F4F5',
   },
 })
