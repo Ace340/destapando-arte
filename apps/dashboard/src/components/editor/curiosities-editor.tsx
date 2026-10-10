@@ -1,7 +1,20 @@
 import { createCuriosity, removeCuriosity } from '@/lib/actions'
 import { CuriosityBadge } from '@/components/badges'
+import { NativeSelect } from '@/components/native-select'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import type { Curiosity } from '@/lib/types'
-import { caption, card, danger, field, primary } from './styles'
+
+const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
 
 export function CuriositiesEditor({
   artworkId,
@@ -13,64 +26,84 @@ export function CuriositiesEditor({
   curiosities: Curiosity[]
 }) {
   return (
-    <section className={card}>
-      <h2 className="text-lg font-semibold">Curiosidades — tipadas y con fuente (ADR-0007)</h2>
-      <p className="mt-1 text-sm text-zinc-500">
-        Sin fuente no hay curiosidad. «Mito destapado» es el contenido premium: la leyenda
-        dice X, la evidencia dice Y.
-      </p>
-
-      <ul className="mt-4 space-y-3">
-        {curiosities.map((curiosity) => (
-          <li key={curiosity.id} className="rounded-lg border border-zinc-200 p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <CuriosityBadge type={curiosity.type} />
-                <p className="mt-2 text-sm text-zinc-900">{curiosity.text}</p>
-                <a className="mt-1 inline-block text-xs text-sky-700 underline"
-                  href={curiosity.source_url} target="_blank" rel="noopener noreferrer">
-                  fuente: {curiosity.source_note ?? curiosity.source_url}
-                </a>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Curiosidades — tipadas y con fuente (ADR-0007)</CardTitle>
+        <CardDescription>
+          Sin fuente no hay curiosidad. «Mito destapado» es el contenido premium:
+          la leyenda dice X, la evidencia dice Y.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3">
+          {curiosities.map((curiosity) => (
+            <li key={curiosity.id} className="rounded-lg border border-border p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CuriosityBadge type={curiosity.type} />
+                  <p className="mt-2 text-sm">{curiosity.text}</p>
+                  <a
+                    className="mt-1 inline-block text-xs text-primary underline underline-offset-4"
+                    href={curiosity.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    fuente: {curiosity.source_note ?? curiosity.source_url}
+                  </a>
+                </div>
+                <form action={removeCuriosity}>
+                  <input type="hidden" name="id" value={curiosity.id} />
+                  <input type="hidden" name="slug" value={slug} />
+                  <Button type="submit" variant="destructive" size="xs">
+                    quitar
+                  </Button>
+                </form>
               </div>
-              <form action={removeCuriosity}>
-                <input type="hidden" name="id" value={curiosity.id} />
-                <input type="hidden" name="slug" value={slug} />
-                <button type="submit" className={danger}>quitar</button>
-              </form>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
 
-      <form action={createCuriosity} className="mt-6 space-y-3 border-t border-zinc-200 pt-6">
-        <input type="hidden" name="artwork_id" value={artworkId} />
-        <input type="hidden" name="slug" value={slug} />
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-          <div>
-            <label className={caption} htmlFor="curiosity-text">Nueva curiosidad</label>
-            <textarea className={`${field} mt-1`} id="curiosity-text" name="text" rows={2} required />
+        <form
+          action={createCuriosity}
+          className="mt-6 space-y-3 border-t border-border pt-6"
+        >
+          <input type="hidden" name="artwork_id" value={artworkId} />
+          <input type="hidden" name="slug" value={slug} />
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div className="space-y-1.5">
+              <Label className={caption} htmlFor="curiosity-text">
+                Nueva curiosidad
+              </Label>
+              <Textarea id="curiosity-text" name="text" rows={2} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label className={caption} htmlFor="curiosity-type">
+                Tipo
+              </Label>
+              <NativeSelect id="curiosity-type" name="type" defaultValue="fact">
+                <option value="fact">dato</option>
+                <option value="myth">mito destapado</option>
+                <option value="legend">leyenda</option>
+              </NativeSelect>
+            </div>
           </div>
-          <div>
-            <label className={caption} htmlFor="curiosity-type">Tipo</label>
-            <select className={`${field} mt-1`} id="curiosity-type" name="type" defaultValue="fact">
-              <option value="fact">dato</option>
-              <option value="myth">mito destapado</option>
-              <option value="legend">leyenda</option>
-            </select>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className={caption} htmlFor="curiosity-source">
+                Fuente (URL, obligatoria)
+              </Label>
+              <Input id="curiosity-source" name="source_url" type="url" required />
+            </div>
+            <div className="space-y-1.5">
+              <Label className={caption} htmlFor="curiosity-note">
+                Nota de fuente
+              </Label>
+              <Input id="curiosity-note" name="source_note" />
+            </div>
           </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className={caption} htmlFor="curiosity-source">Fuente (URL, obligatoria)</label>
-            <input className={`${field} mt-1`} id="curiosity-source" name="source_url" type="url" required />
-          </div>
-          <div>
-            <label className={caption} htmlFor="curiosity-note">Nota de fuente</label>
-            <input className={`${field} mt-1`} id="curiosity-note" name="source_note" />
-          </div>
-        </div>
-        <button type="submit" className={primary}>Añadir curiosidad</button>
-      </form>
-    </section>
+          <Button type="submit">Añadir curiosidad</Button>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

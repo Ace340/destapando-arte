@@ -1,53 +1,87 @@
 import { saveBeats } from '@/lib/actions'
 import type { Artwork } from '@/lib/types'
-import { caption, card, field, primary } from './styles'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+
+const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
 
 export function BeatsForm({ artwork }: { artwork: Artwork }) {
   return (
-    <section className={card}>
-      <h2 className="text-lg font-semibold">La historia — cuatro beats</h2>
-      <form action={saveBeats} className="mt-4 space-y-4">
-        <input type="hidden" name="slug" value={artwork.slug} />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">La historia — cuatro beats</CardTitle>
+        <CardDescription>
+          Resumen, por qué importa, curiosidades y conexiones — el ensayo es la
+          única escapatoria libre.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={saveBeats} className="space-y-4">
+          <input type="hidden" name="slug" value={artwork.slug} />
 
-        <div>
-          <label className={caption} htmlFor="summary">Resumen — qué es</label>
-          <textarea className={`${field} mt-1`} id="summary" name="summary" rows={3}
-            defaultValue={artwork.summary ?? ''} />
-        </div>
-
-        <div>
-          <label className={caption} htmlFor="why_it_matters">
-            Por qué importa — el argumento (2–3 frases, obligatorio)
-          </label>
-          <textarea className={`${field} mt-1`} id="why_it_matters" name="why_it_matters" rows={3}
-            defaultValue={artwork.why_it_matters ?? ''} />
-        </div>
-
-        <div>
-          <label className={caption} htmlFor="essay">
-            Ensayo — la única escapatoria libre (opcional)
-          </label>
-          <textarea className={`${field} mt-1`} id="essay" name="essay" rows={5}
-            defaultValue={artwork.essay ?? ''} />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className={caption} htmlFor="source_transcript">
-              Transcripción fuente (ADR-0013: sin transcripción no hay descuento)
-            </label>
-            <textarea className={`${field} mt-1`} id="source_transcript" name="source_transcript" rows={3}
-              defaultValue={artwork.source_transcript ?? ''} />
+          <div className="space-y-1.5">
+            <Label className={caption} htmlFor="summary">
+              Resumen — qué es
+            </Label>
+            <Textarea id="summary" name="summary" rows={3} defaultValue={artwork.summary ?? ''} />
           </div>
-          <div>
-            <label className={caption} htmlFor="episode_youtube_id">Episodio (YouTube ID)</label>
-            <input className={`${field} mt-1`} id="episode_youtube_id" name="episode_youtube_id"
-              defaultValue={artwork.episode_youtube_id ?? ''} placeholder="dQw4w9WgXcQ" />
-          </div>
-        </div>
 
-        <button type="submit" className={primary}>Guardar beats</button>
-      </form>
-    </section>
+          <div className="space-y-1.5">
+            <Label className={caption} htmlFor="why_it_matters">
+              Por qué importa — el argumento (2–3 frases, obligatorio)
+            </Label>
+            <Textarea
+              id="why_it_matters"
+              name="why_it_matters"
+              rows={3}
+              defaultValue={artwork.why_it_matters ?? ''}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className={caption} htmlFor="essay">
+              Ensayo — la única escapatoria libre (opcional)
+            </Label>
+            <Textarea id="essay" name="essay" rows={5} defaultValue={artwork.essay ?? ''} />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className={caption} htmlFor="source_transcript">
+                Transcripción fuente (ADR-0013: sin transcripción no hay descuento)
+              </Label>
+              <Textarea
+                id="source_transcript"
+                name="source_transcript"
+                rows={3}
+                defaultValue={artwork.source_transcript ?? ''}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className={caption} htmlFor="episode_youtube_id">
+                Episodio (YouTube ID)
+              </Label>
+              <Input
+                id="episode_youtube_id"
+                name="episode_youtube_id"
+                defaultValue={artwork.episode_youtube_id ?? ''}
+                placeholder="dQw4w9WgXcQ"
+              />
+            </div>
+          </div>
+
+          <Button type="submit">Guardar beats</Button>
+        </form>
+      </CardContent>
+    </Card>
   )
 }
