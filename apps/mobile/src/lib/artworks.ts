@@ -1,4 +1,4 @@
-import { db } from './supabase'
+import { supabaseClient } from './supabase'
 import { displayUrl } from './image-url'
 import type { Artwork, Artist, Curiosity, Film, FilmConnection, ImageAsset } from './types'
 
@@ -21,40 +21,49 @@ export interface StoryBundle {
   connections: ConnectionRow[]
 }
 
+// The display asset behind both the Hero image and its credit line (ADR-0016).
+export function displayAsset(artwork: CatalogRow): NonNullable<CatalogRow['image_assets']>[number] | null {
+  return artwork.image_assets?.find((asset) => asset.kind === 'display') ?? null
+}
+
 // The Hero source (ADR-0020, GLOSSARY Hero): the display asset through the
 // Commons FilePath redirect. Null when the work is story-only (ADR-0003) —
 // the caller falls back to the palette gradient.
 export function heroSource(artwork: CatalogRow, width = 1080): string | null {
-  const display = artwork.image_assets?.find((asset) => asset.kind === 'display')
+  const display = displayAsset(artwork)
   return display ? displayUrl(display.source_url, width) : null
 }
 
 // ADR-0016 attribution: cheap and honest — the display asset's credit line.
 export function heroCredit(artwork: CatalogRow): string | null {
-  return artwork.image_assets?.find((asset) => asset.kind === 'display')?.credit ?? null
+  return displayAsset(artwork)?.credit ?? null
+}
+
+// One honest error per query — the four fetches below share this shape.
+function unwrap<T>(response: { data: T | null; error: { message: string } | null }, label: string): T | null {
+  if (response.error) throw new Error(`${label}: ${response.error.message}`)
+  return response.data ?? null
 }
 
 export async function list(): Promise<CatalogRow[]> {
-  const { data, error } = await db()
+  const response = await supabaseClient()
     .from('artworks')
     .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
     .eq('story_status', 'published')
     .order('title_es')
-  if (error) throw new Error(`Catálogo: ${error.message}`)
-  return (data ?? []) as CatalogRow[]
+  return unwrap<CatalogRow[]>(response, 'Catálogo') ?? []
 }
 
 export async function get(slug: string): Promise<StoryBundle | null> {
-  const { data, error } = await db()
+  const response = await supabaseClient()
     .from('artworks')
     .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
     .eq('slug', slug)
     .eq('story_status', 'published')
     .maybeSingle()
-  if (error) throw new Error(`Obra ${slug}: ${error.message}`)
-  if (!data) return null
+  const artwork = unwrap<CatalogRow>(response, `Obra ${slug}`)
+  if (!artwork) return null
 
-  const artwork = data as CatalogRow
   const [curiosities, connections] = await Promise.all([
     curiositiesOf(artwork.id),
     connectionsOf(artwork.id),
@@ -63,20 +72,18 @@ export async function get(slug: string): Promise<StoryBundle | null> {
 }
 
 async function curiositiesOf(artworkId: string): Promise<Curiosity[]> {
-  const { data, error } = await db()
+  const response = await supabaseClient()
     .from('curiosities')
     .select('*')
     .eq('artwork_id', artworkId)
     .order('position')
-  if (error) throw new Error(`Curiosidades: ${error.message}`)
-  return (data ?? []) as Curiosity[]
+  return unwrap<Curiosity[]>(response, 'Curiosidades') ?? []
 }
 
 async function connectionsOf(artworkId: string): Promise<ConnectionRow[]> {
-  const { data, error } = await db()
+  const response = await supabaseClient()
     .from('film_connections')
     .select('*, films(*)')
     .eq('artwork_id', artworkId)
-  if (error) throw new Error(`Conexiones: ${error.message}`)
-  return (data ?? []) as ConnectionRow[]
+  return unwrap<ConnectionRow[]>(response, 'Conexiones') ?? []
 }

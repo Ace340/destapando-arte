@@ -5,7 +5,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { Theme } from '@/lib/theme'
+import { useTheme } from '@/lib/theme'
 
 // Collapsing toolbar over the Hero (ADR-0020). iOS 26+: real liquid glass,
 // animated through glassEffectStyle 'regular'↔'none' — never opacity, which
@@ -22,10 +22,10 @@ export const HEADER_CONTENT_HEIGHT = 52
 interface StoryHeaderProps {
   visible: boolean
   title: string
-  theme: Theme
 }
 
-export function StoryHeader({ visible, title, theme }: StoryHeaderProps) {
+export function StoryHeader({ visible, title }: StoryHeaderProps) {
+  const theme = useTheme()
   const insets = useSafeAreaInsets()
   const opacity = useSharedValue(0)
 

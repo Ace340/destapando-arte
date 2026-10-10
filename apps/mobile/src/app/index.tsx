@@ -1,39 +1,22 @@
-import { Link } from 'expo-router'
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useCallback } from 'react'
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { ArtworkThumb } from '@/components/artwork-thumb'
+import { CatalogRowItem, CatalogSeparator } from '@/components/catalog-row'
 import { SetupNotice } from '@/components/setup-notice'
-import { heroSource, list, type CatalogRow } from '@/lib/artworks'
+import { list, type CatalogRow } from '@/lib/artworks'
 import { isConfigured } from '@/lib/supabase'
 import { useTheme } from '@/lib/theme'
-import { message } from '@/lib/error'
+import { useAsync } from '@/lib/use-async'
 
-type State =
-  | { kind: 'loading' }
-  | { kind: 'error'; message: string }
-  | { kind: 'ready'; artworks: CatalogRow[] }
+// The catalog (ADR-0020): the wall of paintings. Row rendering lives in
+// src/components/catalog-row.
 
 export default function Catalogo() {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
-  const [state, setState] = useState<State>({ kind: 'loading' })
-
-  useEffect(() => {
-    if (!isConfigured()) return
-    let cancelled = false
-    list()
-      .then((artworks) => {
-        if (!cancelled) setState({ kind: 'ready', artworks })
-      })
-      .catch((error) => {
-        if (!cancelled) setState({ kind: 'error', message: message(error) })
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const fetchCatalog = useCallback(() => (isConfigured() ? list() : null), [])
+  const state = useAsync<CatalogRow[]>(fetchCatalog)
 
   if (!isConfigured()) return <SetupNotice />
 
@@ -47,40 +30,14 @@ export default function Catalogo() {
       {state.kind === 'error' ? <Text style={[styles.error, { color: theme.episode }]}>{state.message}</Text> : null}
       {state.kind === 'ready' ? (
         <FlatList
-          data={state.artworks}
+          data={state.data}
           keyExtractor={(artwork) => artwork.id}
-          ItemSeparatorComponent={() => <View style={[styles.separator, { backgroundColor: theme.border }]} />}
+          ItemSeparatorComponent={CatalogSeparator}
           renderItem={({ item }) => <CatalogRowItem artwork={item} />}
           contentContainerStyle={styles.list}
         />
       ) : null}
     </View>
-  )
-}
-
-function CatalogRowItem({ artwork }: { artwork: CatalogRow }) {
-  const theme = useTheme()
-  const artist = artwork.artists?.name
-  return (
-    <Link
-      href={{ pathname: '/obra/[slug]', params: { slug: artwork.slug } }}
-      asChild
-    >
-      <Pressable style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}>
-        <ArtworkThumb
-          source={heroSource(artwork, 240)}
-          palette={artwork.palette}
-          slug={artwork.slug}
-        />
-        <View style={styles.rowText}>
-          <Text style={[styles.title, { color: theme.text }]}>{artwork.title_es}</Text>
-          <Text style={[styles.meta, { color: theme.muted }]}>
-            {artist}
-            {artwork.year ? ` · ${artwork.year}` : ''}
-          </Text>
-        </View>
-      </Pressable>
-    </Link>
   )
 }
 
@@ -111,29 +68,5 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: 16,
     paddingBottom: 32,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingVertical: 12,
-  },
-  rowPressed: {
-    opacity: 0.6,
-  },
-  rowText: {
-    flex: 1,
-    gap: 2,
-  },
-  title: {
-    fontFamily: 'Fraunces_600SemiBold',
-    fontSize: 17,
-  },
-  meta: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-  },
-  separator: {
-    height: 1,
   },
 })

@@ -3,7 +3,7 @@ import { Image } from 'expo-image'
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native'
 import Animated, { type AnimatedStyle } from 'react-native-reanimated'
 
-import { gradientStops, pickAccent } from '@/lib/theme'
+import { gradientStops, pickAccent } from '@/lib/palette'
 
 // The art-first opening frame (ADR-0020, GLOSSARY Hero). The palette gradient
 // is always the base layer — it is the loading placeholder and, for

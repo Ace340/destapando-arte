@@ -49,16 +49,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     gap: 12,
-    backgroundColor: '#FFFFFF',
   },
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#18181B',
   },
   lead: {
     fontSize: 15,
-    color: '#52525B',
   },
   steps: {
     gap: 10,
@@ -67,11 +64,9 @@ const styles = StyleSheet.create({
   step: {
     fontSize: 15,
     lineHeight: 22,
-    color: '#3F3F46',
   },
   note: {
     fontSize: 13,
-    color: '#A1A1AA',
     marginTop: 8,
   },
 })

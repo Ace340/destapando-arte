@@ -2,7 +2,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Image } from 'expo-image'
 import { StyleSheet, View } from 'react-native'
 
-import { gradientStops } from '@/lib/theme'
+import { gradientStops } from '@/lib/palette'
+import { useTheme } from '@/lib/theme'
 
 // Art-first catalog row (ADR-0020): the wall of paintings starts here.
 // Same model as the Hero — palette gradient base, image on top when the
@@ -16,8 +17,9 @@ interface ArtworkThumbProps {
 }
 
 export function ArtworkThumb({ source, palette, slug, size = 72 }: ArtworkThumbProps) {
+  const theme = useTheme()
   return (
-    <View style={[styles.thumb, { width: size, height: size }]}>
+    <View style={[styles.thumb, { width: size, height: size, backgroundColor: theme.surface }]}>
       <LinearGradient
         colors={gradientStops(palette) as [string, string, ...string[]]}
         style={StyleSheet.absoluteFill}
@@ -41,6 +43,5 @@ const styles = StyleSheet.create({
   thumb: {
     borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: '#27272A',
   },
 })
