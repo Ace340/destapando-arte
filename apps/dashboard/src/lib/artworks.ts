@@ -1,6 +1,6 @@
 import 'server-only'
 import { db } from './supabase-server'
-import type { Artwork, Artist, Curiosity, Film, FilmConnection } from './types'
+import type { Artwork, Artist, Curiosity, Film, FilmConnection, ImageAsset } from './types'
 
 export interface CatalogRow extends Artwork {
   artists: Pick<Artist, 'slug' | 'name'> | null
@@ -14,6 +14,7 @@ export interface StoryBundle {
   artwork: CatalogRow
   curiosities: Curiosity[]
   connections: ConnectionRow[]
+  images: ImageAsset[]
 }
 
 export async function list(): Promise<CatalogRow[]> {
@@ -35,11 +36,24 @@ export async function get(slug: string): Promise<StoryBundle | null> {
   if (!data) return null
 
   const artwork = data as CatalogRow
-  const [curiosities, connections] = await Promise.all([
+  const [curiosities, connections, images] = await Promise.all([
     curiositiesOf(artwork.id),
     connectionsOf(artwork.id),
+    imagesOf(artwork.id),
   ])
-  return { artwork, curiosities, connections }
+  return { artwork, curiosities, connections, images }
+}
+
+export async function imagesOf(artworkId: string): Promise<ImageAsset[]> {
+  const { data, error } = await db()
+    .from('image_assets')
+    .select('*')
+    .eq('artwork_id', artworkId)
+    // display first: it is the artwork's face; references follow in load order
+    .order('kind', { ascending: true })
+    .order('created_at', { ascending: true })
+  if (error) throw new Error(`Imágenes: ${error.message}`)
+  return (data ?? []) as ImageAsset[]
 }
 
 export async function curiositiesOf(artworkId: string): Promise<Curiosity[]> {

@@ -209,3 +209,25 @@ Grill session → decisions on disk: **ADR-0020** (reading surface is art-first 
 - **Pending:** Patrick's on-device pass (Expo Go, cold cache — first load slower): dark mode toggle, fridas gradient vs image heroes, glass header on iOS 26.
 
 Next steps: kickoff queue unchanged (scaffold review now covers this UI too; Avísame server route, obra del día, EAS + Play internal track; standing editorial items; Mauritshuis/Prado re-verification; push slot collision; external ledger).
+
+## Imágenes editor session (2026-10-15) — Tablero image management, stage 1 URL-based (Increment 15)
+
+Origin: Patrick's question — "are these placeholders? can I upload images in the dashboard?" Answers on record: **no placeholders** (9/10 display rows are verified-PD Commons scans hotlinked via `Special:FilePath?width=` — mobile renders them; web `/obra` shows no images at all), **las-dos-fridas = zero images by ADR-0003** (gradient hero on mobile), and **no upload path existed** — images entered via SQL story-loads only, consistent with the hotlink-not-host model (ADR-0008).
+
+**Two-stage plan agreed at the gate:** stage 1 = URL-based editor in the Tablero (canon-consistent, no infra) — BUILT this session; stage 2 = true upload via Supabase Storage + `storage_path` column migration (ADR-0008 rider, precedence uploaded→Commons→gradient) — **parked until pre-launch**, where its real justification lives (Wikimedia `Special:FilePath` is a redirect, not an SLA CDN; owning the bytes is reliability, not rights — the corpus is PD by ADR-0002).
+
+**The build (5 files):** `lib/image-url.ts` — editor-strict twin of mobile's transform (`null` on non-Commons URLs, never a raw render: a mis-pasted URL must never load a ~30k-px GAP scan; the mobile copy stays fallback-permissive — different contracts, documented on both sides); `artworks.ts` — `imagesOf()` + `images` in the story bundle (display first); `actions.ts` — `saveImage`/`removeImage` with the Commons file-page pattern validated at the boundary and **mandatory credit (ADR-0016)**; `images-editor.tsx` — Card with live preview, reference count vs the ≥3 indexing floor (ADR-0005), ADR-0003 story-only Alert replacing the form on blocked obras; wired into `/cuadro` **before BeatsForm** (enrichment precedes drafting in the pipeline).
+
+**Decisions encoded:** display = **replace-on-save** (the story-loads' own delete+insert model — one face per obra); reference = append; blocked obras refuse inserts of *any* kind at the action — deliberately stricter than the DB, whose `image_assets_story_only` trigger only guards `reference` kind (gap noted here); the reference-floor trigger's Spanish error surfaces verbatim from the action.
+
+**Validation:** lint + `next build` green; SSR smoke with the stack resumed cold (Docker → `supabase start` → dev server): `/cuadro/noche-estrellada` 200 with preview transform + Google Art Project credit, `/cuadro/las-dos-fridas` 200 with the blocked notice and form hidden, `/obra/noche-estrellada` 200 (no regression). **Write path (guardar/quitar) not click-tested** — same standing convention as the Avísame click-test; dev server was left running for Patrick's pass.
+
+**Ledger note:** Increments 13–14 (mobile refactor `6f5e323`, Tablero UI `ea8b5c1`) were committed without CANON session records — their commit messages stand as the record; numbering continues from them.
+
+**Next steps (queue — reorder is Patrick's call):**
+
+1. **Code review — Patrick's explicit pick for next session** (this increment; the standing mobile-scaffold review can ride the same pass).
+2. Stage 2 when pre-launch: Storage bucket + `storage_path` migration (ADR-0008 rider) + upload control in the same Card.
+3. Kickoff queue unchanged: Avísame server route, obra del día, push sender (ADR-0018), EAS + Play internal track.
+4. Standing editorial items unchanged: `why_special` ×5, Avísame click-test (web), frame-analysis passes (9 films).
+5. Carried: Mauritshuis/Prado re-verification (403), push slot collision (ADR-0018), external ledger reconciliation.

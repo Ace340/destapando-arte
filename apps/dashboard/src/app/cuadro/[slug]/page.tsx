@@ -7,6 +7,7 @@ import { ButtonLink } from '@/components/button-link'
 import { BeatsForm } from '@/components/editor/beats-form'
 import { ConnectionsEditor } from '@/components/editor/connections-editor'
 import { CuriositiesEditor } from '@/components/editor/curiosities-editor'
+import { ImagesEditor } from '@/components/editor/images-editor'
 import { StatusStepper } from '@/components/editor/status-stepper'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +18,7 @@ export default async function Page(props: PageProps<'/cuadro/[slug]'>) {
   const bundle = await get(slug)
   if (!bundle) notFound()
 
-  const { artwork, curiosities, connections } = bundle
+  const { artwork, curiosities, connections, images } = bundle
 
   return (
     <main className="mx-auto w-full max-w-3xl space-y-6 px-6 py-12">
@@ -53,6 +54,12 @@ export default async function Page(props: PageProps<'/cuadro/[slug]'>) {
         <StatusStepper slug={artwork.slug} status={artwork.story_status} />
       </header>
 
+      <ImagesEditor
+        artworkId={artwork.id}
+        slug={artwork.slug}
+        images={images}
+        blocked={artwork.rights_status === 'blocked'}
+      />
       <BeatsForm artwork={artwork} />
       <CuriositiesEditor artworkId={artwork.id} slug={artwork.slug} curiosities={curiosities} />
       <ConnectionsEditor artworkId={artwork.id} slug={artwork.slug} connections={connections} />

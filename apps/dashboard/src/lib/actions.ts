@@ -5,7 +5,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { db } from './supabase-server'
-import type { CuriosityType, EvidenceVisual, StoryStatus } from './types'
+import { previewUrl } from './image-url'
+import type { CuriosityType, EvidenceVisual, ImageKind, StoryStatus } from './types'
 
 // ADR-0005: forward-only line. 'published' is terminal.
 const NEXT_STATUS: Record<StoryStatus, StoryStatus | null> = {
@@ -156,6 +157,65 @@ export async function removeConnection(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const { error } = await db().from('film_connections').delete().eq('id', id)
   if (error) throw new Error(`Quitar conexión: ${error.message}`)
+  revalidate(slug)
+}
+
+// Imágenes — enlazadas a Commons, nunca alojadas aquí (ADR-0008: host only
+// public-domain or ours — the corpus is PD, so we link). source_url is the
+// Commons *file page* (migration contract); the Special:FilePath transform
+// renders it. Credit is mandatory: attribution stays cheap and honest (ADR-0016).
+export async function saveImage(formData: FormData): Promise<void> {
+  const artworkId = text(formData, 'artwork_id')
+  const slug = text(formData, 'slug')
+  const sourceUrl = text(formData, 'source_url')
+  const credit = text(formData, 'credit')
+  const kind = text(formData, 'kind') as ImageKind
+
+  if (!previewUrl(sourceUrl)) {
+    throw new Error(
+      'La URL debe ser la página de archivo de Commons (https://commons.wikimedia.org/wiki/File:…).',
+    )
+  }
+  if (!credit) throw new Error('ADR-0016: la imagen necesita su línea de crédito.')
+
+  // ADR-0003: story-only for rights-blocked works — zero images, any kind.
+  const { data: artwork } = await db()
+    .from('artworks')
+    .select('rights_status')
+    .eq('id', artworkId)
+    .single()
+  if (artwork?.rights_status === 'blocked') {
+    throw new Error('ADR-0003: obra bloqueada por derechos — solo historia, sin imágenes.')
+  }
+
+  // Display is the artwork's face: one per artwork, replace-on-save — the
+  // same delete+insert model the story-loads use. References append (>= 3
+  // unlocks indexing, ADR-0005).
+  if (kind === 'display') {
+    const { error: clearError } = await db()
+      .from('image_assets')
+      .delete()
+      .match({ artwork_id: artworkId, kind: 'display' })
+    if (clearError) throw new Error(`Reemplazar imagen: ${clearError.message}`)
+  }
+
+  const { error } = await db().from('image_assets').insert({
+    artwork_id: artworkId,
+    kind,
+    source_url: sourceUrl,
+    credit,
+  })
+  if (error) throw new Error(`Imagen: ${error.message}`)
+  revalidate(slug)
+}
+
+export async function removeImage(formData: FormData): Promise<void> {
+  const id = text(formData, 'id')
+  const slug = text(formData, 'slug')
+  // The reference floor (>= 3 on an indexed artwork) is the database's call —
+  // its Spanish error surfaces here if the delete would break ADR-0005.
+  const { error } = await db().from('image_assets').delete().eq('id', id)
+  if (error) throw new Error(`Quitar imagen: ${error.message}`)
   revalidate(slug)
 }
 
