@@ -64,11 +64,22 @@ The auto-collection — a filter over typed curiosities. A view, not a Colecció
 **Why_special**:
 The single 3–5 sentence paragraph that makes an Artist page editorial.
 
+**Bio**:
+The optional short narrative on an Artist page — a compact biography beneath the why_special hook. Enrichment, never a launch gate.
+_Avoid_: full artist Story, vida
+
 **Lesson**:
 The v2 deep-dive unit on an Artist's or Movement's language, with diagrams. The premium tier.
 
 **Artist**:
-An aggregation page — member Stories, connections, museums — plus its why_special. The fallback destination when a work isn't in the Catalog.
+An aggregation page — member Stories, connections, museums — plus its why_special and optional Bio. The fallback destination when a work isn't in the Catalog.
+
+**Obras (view)**:
+The derived list on an Artist page: every published Artwork by that artist. Never hand-typed; grows as the Catalog grows.
+_Avoid_: masterpieces, obras maestras
+
+**Artistas (section)**:
+The browse list of artists with at least one published obra. Artists with none keep working stub pages for fallback duty, unlisted.
 
 **Movement**:
 Pure taxonomy in v1: grouping and routing only, no editorial surface.
@@ -132,6 +143,9 @@ _Avoid_: admin panel, back-office
 
 **Public Story page**:
 The read-only /obra/{slug} web page served by the dashboard — QR target, install funnel, SEO surface, Avísame without the app.
+
+**Public Artist page**:
+The read-only /artista/{slug} web page served by the dashboard — QR target for artist episodes, SEO surface, the artist_page Avísame. Mirrors the Public Story page.
 
 **Primary funnel**:
 Video → QR → public page → install. The channel has the audience; the app starts with zero users. Measured as installs per 1,000 views per episode.
