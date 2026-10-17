@@ -1,4 +1,5 @@
 import { list } from '@/lib/artworks'
+import { listArtists } from '@/lib/artists'
 import { isConfigured } from '@/lib/supabase-server'
 import { IndexedBadge, RightsBadge, StatusBadge } from '@/components/badges'
 import { SetupNotice } from '@/components/setup-notice'
@@ -31,7 +32,7 @@ const PENDING_GATES: readonly { title: string; target: string }[] = [
 
 export default async function Home() {
   if (!isConfigured()) return <SetupNotice />
-  const rows = await list()
+  const [rows, artists] = await Promise.all([list(), listArtists()])
 
   const published = rows.filter((row) => row.story_status === 'published').length
 
@@ -136,6 +137,74 @@ export default async function Home() {
           </TableBody>
         </Table>
       </Card>
+
+      <section aria-label="Artistas" className="mt-10">
+        <header className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-xl font-semibold">Artistas</h2>
+          <p className="text-sm text-muted-foreground">
+            gancho + biografía — la sección pública lista solo artistas con obras publicadas
+            (ADR-0022)
+          </p>
+        </header>
+        <Card className="mt-4 gap-0 py-0">
+          <Table className="[&_th]:h-11 [&_th]:px-4 [&_td]:px-4 [&_td]:py-3">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Artista</TableHead>
+                <TableHead>Gancho</TableHead>
+                <TableHead>Biografía</TableHead>
+                <TableHead>Obras</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {artists.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                    No hay artistas — ejecuta supabase/seed.sql.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                artists.map((artist) => {
+                  const published = (artist.artworks ?? []).filter(
+                    (obra) => obra.story_status === 'published',
+                  ).length
+                  return (
+                    <TableRow key={artist.id}>
+                      <TableCell className="font-medium">{artist.name}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {artist.why_special ? '✓' : '—'}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {artist.bio ? '✓' : '—'}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {published}/{artist.artworks?.length ?? 0}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <ButtonLink variant="link" size="sm" href={`/taller/${artist.slug}`}>
+                            editar
+                          </ButtonLink>
+                          <ButtonLink
+                            variant="link"
+                            size="sm"
+                            href={`/artista/${artist.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            ver ↗
+                          </ButtonLink>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+      </section>
     </main>
   )
 }

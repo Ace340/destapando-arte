@@ -11,6 +11,7 @@ export interface Artist {
   slug: string
   name: string
   why_special: string | null
+  bio: string | null
   episode_youtube_id: string | null
   born_year: number | null
   died_year: number | null

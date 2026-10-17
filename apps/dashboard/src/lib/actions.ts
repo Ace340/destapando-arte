@@ -219,16 +219,39 @@ export async function removeImage(formData: FormData): Promise<void> {
   revalidate(slug)
 }
 
-// Public "Avísame / pide otra obra" from the story page (ADR-0001: story_page source)
+// Public "Avísame / pide otra obra" (ADR-0001 sources). artist_slug marks
+// the artist_page variant; the obra form keeps the story_page default.
 export async function createRequest(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
+  const artistSlug = text(formData, 'artist_slug')
   const label = text(formData, 'label')
   if (!label) throw new Error('Dinos qué obra quieres que destapemos.')
   const { error } = await db().from('content_requests').insert({
-    requested_via: 'story_page',
+    requested_via: artistSlug ? 'artist_page' : 'story_page',
     label,
     artist_id: text(formData, 'artist_id') || null,
   })
   if (error) throw new Error(`Avísame: ${error.message}`)
-  revalidate(slug)
+  if (artistSlug) revalidatePath(`/artista/${artistSlug}`)
+  else if (slug) revalidate(slug)
+}
+
+// ADR-0022: the artist's editorial pair — why_special (the 3–5 sentence
+// hook) and bio (optional short narrative). Enrichment, never a launch gate.
+export async function saveArtist(formData: FormData): Promise<void> {
+  const slug = text(formData, 'slug')
+  const born = parseInt(text(formData, 'born_year'), 10)
+  const died = parseInt(text(formData, 'died_year'), 10)
+  const patch = {
+    why_special: text(formData, 'why_special') || null,
+    bio: text(formData, 'bio') || null,
+    episode_youtube_id: text(formData, 'episode_youtube_id') || null,
+    born_year: Number.isNaN(born) ? null : born,
+    died_year: Number.isNaN(died) ? null : died,
+  }
+  const { error } = await db().from('artists').update(patch).eq('slug', slug)
+  if (error) throw new Error(`Guardar artista: ${error.message}`)
+  revalidatePath('/')
+  revalidatePath(`/taller/${slug}`)
+  revalidatePath(`/artista/${slug}`)
 }

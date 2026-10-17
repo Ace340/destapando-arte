@@ -1,0 +1,5 @@
+# Artist page: hook + optional short Bio; Obras and Artistas are derived views
+
+2026-10-17. Amends ADR-0010: the Artist page keeps why_special (3–5 sentences, required — the cheap hook that keeps the artist-level fallback promise honest) and gains an optional, deliberately short Bio beneath it — a compact narrative, not the full artist Story. Bio is enrichment added progressively; no artist waits on it to launch. The Obras section is derived from published Artworks via artist_id — never a hand-typed title list — and the Artistas section lists only artists with ≥1 published obra; zero-publication artists keep a dignified stub (hook + Avísame + episode button) reachable by deep link for fallback duty, unlisted. Surfaces: mobile + public /artista/{slug} on the dashboard domain.
+
+Rejected: required long-form biographies (ADR-0010's workload grenade, re-litigated and rejected again) and hand-typed obra title lists (drift risk between typed titles and actual artwork records; a second list to maintain).

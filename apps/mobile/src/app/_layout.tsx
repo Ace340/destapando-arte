@@ -42,6 +42,8 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" />
         <Stack.Screen name="obra/[slug]" />
+        <Stack.Screen name="artistas" />
+        <Stack.Screen name="artista/[slug]" />
       </Stack>
     </SafeAreaProvider>
   )
