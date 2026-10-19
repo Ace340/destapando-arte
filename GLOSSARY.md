@@ -118,6 +118,16 @@ _Avoid_: homage, reference, easter egg
 **Frame analysis**:
 The written reconstruction of a shot (composition, light, geometry) with our own annotated diagram. Always load-bearing, never garnish.
 
+**Cine (section)**:
+The browse list of Films with at least one published Film connection — the app's Cine tab.
+_Avoid_: películas, movies
+
+## Los Favoritos
+
+**Favorito**:
+A locally saved Artwork bookmark — the user's own shelf, on-device only, no account (same stance as Avísame). The reader-chosen counterpart to a curated Colección.
+_Avoid_: bookmark, like
+
 ## El Pipeline
 
 **Created**:

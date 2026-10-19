@@ -1,10 +1,8 @@
 import { useCallback } from 'react'
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Link } from 'expo-router'
-import Animated from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { FloatingDock, useDockScroll } from '@/components/floating-dock'
 import { SetupNotice } from '@/components/setup-notice'
 import { listArtists, publishedCount, type ArtistListRow } from '@/lib/artists'
 import { isConfigured } from '@/lib/supabase'
@@ -44,7 +42,6 @@ export default function Artistas() {
   const insets = useSafeAreaInsets()
   const fetchArtists = useCallback(() => (isConfigured() ? listArtists() : null), [])
   const state = useAsync<ArtistListRow[]>(fetchArtists)
-  const { onScroll, hidden } = useDockScroll()
 
   if (!isConfigured()) return <SetupNotice />
 
@@ -57,17 +54,14 @@ export default function Artistas() {
       ) : null}
       {state.kind === 'error' ? <Text style={[styles.error, { color: theme.episode }]}>{state.message}</Text> : null}
       {state.kind === 'ready' ? (
-        <Animated.FlatList
+        <FlatList
           data={state.data}
           keyExtractor={(artist) => artist.id}
           ItemSeparatorComponent={ArtistSeparator}
           renderItem={({ item }) => <ArtistRowItem artist={item} />}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
           contentContainerStyle={styles.list}
         />
       ) : null}
-      <FloatingDock hidden={hidden} />
     </View>
   )
 }
@@ -98,8 +92,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingTop: 16,
-    // Clearance for the floating dock (56px bar + 16px gap).
-    paddingBottom: 104,
+    paddingBottom: 24,
   },
   row: {
     flexDirection: 'row',
