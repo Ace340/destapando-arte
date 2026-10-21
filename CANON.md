@@ -231,3 +231,18 @@ Origin: Patrick's question — "are these placeholders? can I upload images in t
 3. Kickoff queue unchanged: Avísame server route, obra del día, push sender (ADR-0018), EAS + Play internal track.
 4. Standing editorial items unchanged: `why_special` ×5, Avísame click-test (web), frame-analysis passes (9 films).
 5. Carried: Mauritshuis/Prado re-verification (403), push slot collision (ADR-0018), external ledger reconciliation.
+
+## Two-axis review session (2026-10-20) — Descubre wall review fixes (Increment 19)
+
+Origin: two-axis code review (Standards + Spec, parallel sub-agents) of the Apertura wall commit. Ledger: increments 16–18 (tabs `f12c3f3`, their review fixes `247b805`, the wall `08b512f`) were committed without CANON records — their commit messages stand as the record, 13–14 precedent; numbering continues from them.
+
+**Fixed this session (`635431e`, pushed to `origin/feature-homepage`):** shared `ArtworkSurface` component — the gradient-base + image-overlay model extracted from hero/thumb/wall-card (ADR-0020's visual model, one component, not copy-paste); `apertura-card` → `WallCard` (GLOSSARY: the Apertura is the opening pick; the card renders the whole wall); caption back to title/artist only (year was scope creep); `index.tsx` simplified to the rotated wall resolved in the fetch chain (`splitWall`/`CatalogPick`/`pickIndex` deleted, `Math.random` stays out of render); empty catalog gets a Spanish empty state instead of a silent blank screen; **ADR-0020 amended** (2026-10-20: the Catálogo is the full-bleed wall, "thumbnails" wording superseded); stray UTF-8 BOM stripped from GLOSSARY line 1. lint+tsc green.
+
+**Decision (Patrick, this session): no image credits on the Descubre wall.** Credit stays at the reading surface — one tap away (`heroCredit` on Historia), thumbs already credit-free, corpus is PD (ADR-0002), per-card lines would fight ADR-0020's wall-of-paintings signature. **Gap found while deciding:** ADR-0016 is *install* attribution, not image credit — image attribution has no ADR at all, and six code refs cite the wrong one (mobile `artworks.ts` ×2; dashboard `actions.ts` ×2 incl. the user-facing error string; `images-editor.tsx` ×2).
+
+**Next steps (queue — reorder is Patrick's call):**
+
+1. Write **ADR-0023: "Image credit lives at the reading surface"** (PD corpus ADR-0002, hotlink-not-host ADR-0008, credit mandatory at the Tablero editor, rendered on Historia; browse surfaces — Descubre wall, thumbs — stay clean); repoint the six stale ADR-0016 citations to it.
+2. Manual smoke test in Expo Go (cold cache): wall scroll, cold-start Apertura re-pick, story-only gradient card (las-dos-fridas), floating Descubre title over images, empty state, tabs + obra round-trip.
+3. `/setup-matt-pocock-skills` — the issue tracker (`docs/agents/issue-tracker.md`) is still missing; reviews currently fall back to commit-message specs.
+4. Carried queues unchanged: kickoff queue (Avísame server route, obra del día, push sender, EAS + Play internal track), standing editorial items, Mauritshuis/Prado re-verification, push slot collision (ADR-0018), external ledger.
