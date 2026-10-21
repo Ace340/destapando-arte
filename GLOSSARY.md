@@ -1,4 +1,4 @@
-# Destapando el Arte
+﻿# Destapando el Arte
 
 Spanish-first app + YouTube channel: one brand, two products. The app tells the story of an Artwork — what it is, why it matters, the myths, and the films that borrowed its language. A hand-written editorial layer over an open-data base (Met + Wikidata), owned from a dashboard. The Catalog is the recognition boundary; the garden grows visibly and users vote on what gets planted next.
 
@@ -18,6 +18,10 @@ A hosted file bound to an Artwork — display reproduction or recognition refere
 **Catalog**:
 The published, scannable set of Artworks with Stories. Coverage of the Catalog is coverage of the product.
 _Avoid_: database, library
+
+**Apertura**:
+The full-bleed reproduction that opens the Catalog wall, picked at random from published works each time the app opens, with title and artist beneath. Falls back to the palette gradient for story-only works.
+_Avoid_: splash, cover, portada, featured
 
 **Scannable**:
 Published AND indexed: rights-cleared public-domain work with reference vectors in the recognition index.
