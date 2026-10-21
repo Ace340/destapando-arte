@@ -40,9 +40,8 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: theme.bg },
         }}
       >
-        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="obra/[slug]" />
-        <Stack.Screen name="artistas" />
         <Stack.Screen name="artista/[slug]" />
       </Stack>
     </SafeAreaProvider>
