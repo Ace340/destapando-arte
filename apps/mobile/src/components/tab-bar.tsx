@@ -10,7 +10,8 @@ import { useTheme } from '@/lib/theme'
 // sections as full-width edge-to-edge tabs — always visible, no
 // hide-on-scroll. iOS 26+: real liquid glass. Other platforms: themed
 // surface with a top hairline. Icons + labels; active state is color-only.
-// Future sections append here — the bar grows, the screens don't change.
+// Future sections: add the screen file and one SECTIONS entry — the bar and
+// the (tabs) registration both derive from that list.
 
 // Short-circuit before the native checks so the functions are never called
 // on platforms where the module is absent.
@@ -20,6 +21,8 @@ const GLASS_OK =
 const BAR_HEIGHT = 56
 
 interface TabSection {
+  /** Expo Router route name inside (tabs) — also the Tabs.Screen name. */
+  name: string
   label: string
   href: Href
   icon: keyof typeof Ionicons.glyphMap
@@ -27,12 +30,21 @@ interface TabSection {
 
 // Sections (GLOSSARY): Descubre (the catalog wall), the Artistas section,
 // the Cine section, and Favoritos (the user's local shelf of Obras).
-const SECTIONS: TabSection[] = [
-  { label: 'Descubre', href: '/', icon: 'compass' },
-  { label: 'Artistas', href: '/artistas', icon: 'people' },
-  { label: 'Cine', href: '/cine', icon: 'film' },
-  { label: 'Favoritos', href: '/favoritos', icon: 'heart' },
+// Single source of truth: (tabs)/_layout derives its Tabs.Screen
+// registrations from this list.
+export const SECTIONS: TabSection[] = [
+  { name: 'index', label: 'Descubre', href: '/', icon: 'compass' },
+  { name: 'artistas', label: 'Artistas', href: '/artistas', icon: 'people' },
+  { name: 'cine', label: 'Cine', href: '/cine', icon: 'film' },
+  { name: 'favoritos', label: 'Favoritos', href: '/favoritos', icon: 'heart' },
 ]
+
+// Exact pathname match, with a nesting guard so a future sub-route under a
+// section keeps the tab lit — but a sibling route sharing a prefix
+// (e.g. /artistas-x) can never falsely activate it.
+function isActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
 
 export function TabBar() {
   const theme = useTheme()
@@ -60,8 +72,7 @@ export function TabBar() {
         />
       )}
       {SECTIONS.map((section) => {
-        const active =
-          section.href === '/' ? pathname === '/' : pathname.startsWith(String(section.href))
+        const active = isActive(pathname, String(section.href))
         const color = active ? theme.text : theme.muted
         return (
           <Pressable

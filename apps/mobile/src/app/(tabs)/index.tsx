@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native'
 
 import { CatalogRowItem, CatalogSeparator } from '@/components/catalog-row'
+import { SectionScreen } from '@/components/section-screen'
 import { SetupNotice } from '@/components/setup-notice'
 import { list, type CatalogRow } from '@/lib/artworks'
 import { isConfigured } from '@/lib/supabase'
@@ -14,18 +14,13 @@ import { useAsync } from '@/lib/use-async'
 
 export default function Catalogo() {
   const theme = useTheme()
-  const insets = useSafeAreaInsets()
   const fetchCatalog = useCallback(() => (isConfigured() ? list() : null), [])
   const state = useAsync<CatalogRow[]>(fetchCatalog)
 
   if (!isConfigured()) return <SetupNotice />
 
   return (
-    <View style={[styles.screen, { backgroundColor: theme.bg, paddingTop: insets.top + 12 }]}>
-      <View>
-        <Text style={[styles.brand, { color: theme.faint }]}>Destapando el Arte</Text>
-        <Text style={[styles.subtitle, { color: theme.text }]}>Las historias detrás de los cuadros</Text>
-      </View>
+    <SectionScreen subtitle="Las historias detrás de los cuadros">
       {state.kind === 'loading' ? (
         <ActivityIndicator style={styles.center} size="large" color={theme.muted} />
       ) : null}
@@ -39,27 +34,11 @@ export default function Catalogo() {
           contentContainerStyle={styles.list}
         />
       ) : null}
-    </View>
+    </SectionScreen>
   )
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  brand: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  subtitle: {
-    marginTop: 4,
-    fontFamily: 'Fraunces_600SemiBold',
-    fontSize: 24,
-  },
   center: {
     marginTop: 48,
   },

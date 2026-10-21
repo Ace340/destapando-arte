@@ -1,61 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
-import { useTheme } from '@/lib/theme'
+import { SectionEmpty, SectionScreen } from '@/components/section-screen'
 
 // GLOSSARY Favorito: the user's local shelf of saved Obras — on-device
 // only, no account. Blank page for now — the section fills in when
 // favoriting ships.
 
 export default function Favoritos() {
-  const theme = useTheme()
-  const insets = useSafeAreaInsets()
-
   return (
-    <View style={[styles.screen, { backgroundColor: theme.bg, paddingTop: insets.top + 12 }]}>
-      <Text style={[styles.brand, { color: theme.faint }]}>Destapando el Arte</Text>
-      <Text style={[styles.subtitle, { color: theme.text }]}>Favoritos</Text>
-      <View style={styles.empty}>
-        <Text style={[styles.placeholder, { color: theme.muted }]}>Aún no tienes favoritos</Text>
-        <Text style={[styles.hint, { color: theme.faint }]}>
-          Guarda obras desde su historia y aparecerán aquí
-        </Text>
-      </View>
-    </View>
+    <SectionScreen subtitle="Favoritos">
+      <SectionEmpty
+        title="Aún no tienes favoritos"
+        hint="Guarda obras desde su historia y aparecerán aquí"
+      />
+    </SectionScreen>
   )
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  brand: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  subtitle: {
-    marginTop: 4,
-    fontFamily: 'Fraunces_600SemiBold',
-    fontSize: 24,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingBottom: 96,
-  },
-  placeholder: {
-    fontFamily: 'Fraunces_600SemiBold',
-    fontSize: 18,
-  },
-  hint: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-})
