@@ -1,9 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient'
-import { Image } from 'expo-image'
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native'
 import Animated, { type AnimatedStyle } from 'react-native-reanimated'
 
-import { gradientStops, pickAccent } from '@/lib/palette'
+import { ArtworkSurface } from '@/components/artwork-surface'
+import { pickAccent } from '@/lib/palette'
 
 // The art-first opening frame (ADR-0020, GLOSSARY Hero). The palette gradient
 // is always the base layer — it is the loading placeholder and, for
@@ -23,20 +23,15 @@ export function Hero({ source, palette, title, meta, accentFallback, height, sty
   const accent = pickAccent(palette, accentFallback)
   return (
     <Animated.View style={[styles.frame, { height }, style]}>
-      <LinearGradient
-        colors={gradientStops(palette) as [string, string, ...string[]]}
+      <ArtworkSurface
+        source={source}
+        palette={palette}
+        transition={350}
+        accessibilityLabel={title}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      {source ? (
-        <Image
-          source={{ uri: source }}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-          transition={350}
-          accessible
-          accessibilityLabel={title}
-        />
-      ) : null}
       <LinearGradient
         colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.62)']}
         style={StyleSheet.absoluteFill}

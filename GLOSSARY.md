@@ -1,4 +1,4 @@
-﻿# Destapando el Arte
+# Destapando el Arte
 
 Spanish-first app + YouTube channel: one brand, two products. The app tells the story of an Artwork — what it is, why it matters, the myths, and the films that borrowed its language. A hand-written editorial layer over an open-data base (Met + Wikidata), owned from a dashboard. The Catalog is the recognition boundary; the garden grows visibly and users vote on what gets planted next.
 
