@@ -50,11 +50,12 @@ const styles = StyleSheet.create({
   caption: {
     paddingHorizontal: 24,
     paddingTop: 12,
+    paddingBottom: 32,
     gap: 4,
   },
   title: {
-    fontFamily: 'Fraunces_600SemiBold',
-    fontSize: 22,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 24,
   },
   meta: {
     fontFamily: 'Inter_400Regular',

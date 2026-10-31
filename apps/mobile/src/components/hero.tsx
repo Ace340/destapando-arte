@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   title: {
-    fontFamily: 'Fraunces_600SemiBold',
+    fontFamily: 'InstrumentSerif_400Regular',
     fontSize: 30,
     lineHeight: 34,
     color: '#FFFFFF',
