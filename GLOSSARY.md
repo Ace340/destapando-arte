@@ -19,6 +19,10 @@ A hosted file bound to an Artwork — display reproduction or recognition refere
 The published, scannable set of Artworks with Stories. Coverage of the Catalog is coverage of the product.
 _Avoid_: database, library
 
+**Apertura**:
+The full-bleed reproduction that opens the Catalog wall, picked at random from published works each time the app opens, with title and artist beneath. Falls back to the palette gradient for story-only works.
+_Avoid_: splash, cover, portada, featured
+
 **Scannable**:
 Published AND indexed: rights-cleared public-domain work with reference vectors in the recognition index.
 
