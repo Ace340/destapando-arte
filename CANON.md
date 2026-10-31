@@ -5,7 +5,7 @@ The canonical entry point for Destapando el Arte. Every session — human or age
 ## The canon
 
 - `GLOSSARY.md` — the language
-- `docs/adr/0001–0019` — the decisions
+- `docs/adr/0001–0022` — the decisions
 - This file — precedence and reconciliation
 
 ## Precedence rules
@@ -234,7 +234,7 @@ Origin: Patrick's question — "are these placeholders? can I upload images in t
 
 ## Two-axis review session (2026-10-20) — Descubre wall review fixes (Increment 19)
 
-Origin: two-axis code review (Standards + Spec, parallel sub-agents) of the Apertura wall commit. Ledger: increments 16–18 (tabs `f12c3f3`, their review fixes `247b805`, the wall `08b512f`) were committed without CANON records — their commit messages stand as the record, 13–14 precedent; numbering continues from them.
+Origin: two-axis code review (Standards + Spec, parallel sub-agents) of the Descubre wall commit (`08b512f`). Ledger: increments 16–18 (16: tabs `f12c3f3`; 17: their review fixes `247b805`; 18: the wall `08b512f`) were committed without CANON records — their commit messages stand as the record, 13–14 precedent; numbering continues from them.
 
 **Fixed this session (`635431e`, pushed to `origin/feature-homepage`):** shared `ArtworkSurface` component — the gradient-base + image-overlay model extracted from hero/thumb/wall-card (ADR-0020's visual model, one component, not copy-paste); `apertura-card` → `WallCard` (GLOSSARY: the Apertura is the opening pick; the card renders the whole wall); caption back to title/artist only (year was scope creep); `index.tsx` simplified to the rotated wall resolved in the fetch chain (`splitWall`/`CatalogPick`/`pickIndex` deleted, `Math.random` stays out of render); empty catalog gets a Spanish empty state instead of a silent blank screen; **ADR-0020 amended** (2026-10-20: the Catálogo is the full-bleed wall, "thumbnails" wording superseded); stray UTF-8 BOM stripped from GLOSSARY line 1. lint+tsc green.
 
