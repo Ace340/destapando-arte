@@ -1,5 +1,12 @@
 # Handoff — Bottom tabs + new sections (Cine, Favoritos)
 
+> **SUPERSEDED (2026-10-22)** — citable as history, never as a queue.
+> This task landed and moved on: tabs merged via `artist-feature` (`d3a2295`),
+> review fixes `247b805` (commit message stands as the record, Increments 16–18
+> ledger note in CANON.md). The one open item below (Expo Go smoke test) was
+> absorbed into the live queue in **CANON.md, Increment 19** (2026-10-20).
+> Current next steps live there, not here.
+
 Branch: `artist-feature` · Date: 2026-10-18
 
 ## Todo list state (session interrupted — weekly quota)

@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    fontFamily: 'Fraunces_600SemiBold',
+    fontFamily: 'InstrumentSerif_400Regular',
     fontSize: 17,
   },
   meta: {
