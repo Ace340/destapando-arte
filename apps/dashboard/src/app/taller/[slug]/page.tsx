@@ -49,7 +49,12 @@ export default async function Page(props: PageProps<'/taller/[slug]'>) {
         </p>
       </header>
 
-      <ArtistForm artist={artist} />
+      <ArtistForm
+    artist={artist}
+    selloOptions={obras
+      .filter((obra) => obra.story_status === 'published')
+      .map(({ id, title_es, story_status }) => ({ id, title_es, story_status }))}
+  />
 
       {obras.length > 0 ? (
         <Card>

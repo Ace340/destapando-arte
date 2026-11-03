@@ -238,6 +238,11 @@ export async function createRequest(formData: FormData): Promise<void> {
 
 // ADR-0022: the artist's editorial pair — why_special (the 3–5 sentence
 // hook) and bio (optional short narrative). Enrichment, never a launch gate.
+// ADR-0023 (amended): sello_artwork_id points at the published obra that
+// represents the artist; null keeps the alphabetical derivation. The select
+// only offers this artist's published obras and the Tablero is a trusted
+// single-editor surface, so the pointer itself is trusted; the resolver
+// still honors it only when the obra is published.
 export async function saveArtist(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const born = parseInt(text(formData, 'born_year'), 10)
@@ -248,6 +253,7 @@ export async function saveArtist(formData: FormData): Promise<void> {
     episode_youtube_id: text(formData, 'episode_youtube_id') || null,
     born_year: Number.isNaN(born) ? null : born,
     died_year: Number.isNaN(died) ? null : died,
+    sello_artwork_id: text(formData, 'sello_artwork_id') || null,
   }
   const { error } = await db().from('artists').update(patch).eq('slug', slug)
   if (error) throw new Error(`Guardar artista: ${error.message}`)

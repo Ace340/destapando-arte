@@ -1,0 +1,7 @@
+# Artist Sello: derived from obras, never a hosted portrait
+
+2026-11-02. The circular artist mark (GLOSSARY Sello) on the Artistas list rows and the Artist page header is derived: the alphabetically first published obra (by `title_es`) with a display image supplies the picture; with none, a monogram falls back on the first obra's palette gradient. A hosted artist portrait was rejected — it re-ran ADR-0022's rejected required-bio workload (a portrait per artist before anyone launches) and, worse, the circle would usually show a face, while the product's visual identity is the art itself. Should a hosted artist image ever be wanted, ADR-0008's doctrine extends to it: public-domain or ours, never hosted otherwise.
+
+Rejected: hosted portrait column on `artists` (editorial workload, faces-not-art, a second thing to maintain — ADR-0022's drift argument); Wikidata/Commons portrait resolution at read time (rests on a link we don't control, ADR-0014).
+
+Amended 2026-11-02: the Tablero gains a Sello pointer (`sello_artwork_id`, migration 20261102120000) — the editor picks which published obra represents the artist; null keeps the alphabetical rule, and the pointer is honored only when the obra is published. The "never editor input" stance above is superseded for the *choice*, never for the *media*: the circle still shows their art (the pointed obra's display asset), still never a hosted face.

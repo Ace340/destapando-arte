@@ -17,6 +17,7 @@ export interface Artist {
   born_year: number | null
   died_year: number | null
   wikidata_id: string | null
+  sello_artwork_id: string | null
   created_at: string
 }
 

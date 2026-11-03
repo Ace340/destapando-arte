@@ -13,8 +13,9 @@ import { CatalogRowItem, CatalogSeparator } from '@/components/catalog-row'
 import { EpisodeButton } from '@/components/episode-button'
 import { ObraFallback } from '@/components/obra-fallback'
 import { PrivacyFooter } from '@/components/privacy-footer'
+import { Sello } from '@/components/sello'
 import { BodyText, StorySection } from '@/components/story-section'
-import { getArtist, type ArtistBundle } from '@/lib/artists'
+import { artistInitials, getArtist, resolveSello, type ArtistBundle } from '@/lib/artists'
 import { useTheme } from '@/lib/theme'
 import { useAsync } from '@/lib/use-async'
 
@@ -22,6 +23,7 @@ import { useAsync } from '@/lib/use-async'
 // derived Obras view — published member Stories, never hand-typed. Exists
 // even with zero obras: the dignified stub (hook + episode) serving
 // artist-level fallback duty. Mirror of the web /artista/[slug] page.
+// The Sello beside the name (ADR-0023) is derived from the same obras.
 
 const NOT_FOUND_BODY =
   'Este artista todavía no tiene página pública. Vuelve a Artistas y elige otro.'
@@ -56,6 +58,7 @@ export default function Artista() {
 
   const { artist, obras } = bundle
   const years = [artist.born_year, artist.died_year].filter(Boolean).join(' – ')
+  const sello = resolveSello(obras, artist.sello_artwork_id)
 
   return (
     <ScrollView
@@ -63,8 +66,18 @@ export default function Artista() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: 48 }]}
     >
       <Text style={[styles.brand, { color: theme.faint }]}>Destapando el Arte</Text>
-      <Text style={[styles.name, { color: theme.text }]}>{artist.name}</Text>
-      {years ? <Text style={[styles.years, { color: theme.muted }]}>{years}</Text> : null}
+      <View style={styles.headerRow}>
+        <Sello
+          imageUrl={sello.imageUrl}
+          palette={sello.palette}
+          initials={artistInitials(artist.name)}
+          size={64}
+        />
+        <View style={styles.headerText}>
+          <Text style={[styles.name, { color: theme.text }]}>{artist.name}</Text>
+          {years ? <Text style={[styles.years, { color: theme.muted }]}>{years}</Text> : null}
+        </View>
+      </View>
 
       {artist.why_special ? (
         <StorySection title="Por qué es especial">
@@ -114,13 +127,21 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
+  headerRow: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  headerText: {
+    flex: 1,
+    gap: 4,
+  },
   name: {
-    marginTop: 8,
     fontFamily: 'Fraunces_600SemiBold',
     fontSize: 28,
   },
   years: {
-    marginTop: 4,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
   },

@@ -85,6 +85,10 @@ _Avoid_: masterpieces, obras maestras
 **Artistas (section)**:
 The browse list of artists with at least one published obra. Artists with none keep working stub pages for fallback duty, unlisted.
 
+**Sello**:
+The circular artist mark on artist surfaces — the artist's published Obra chosen as their emblem in the Tablero, else the alphabetically first obra with a display image; a monogram on palette gradient when neither. Shows their art, never their face.
+_Avoid_: portrait, profile picture, avatar, foto
+
 **Movement**:
 Pure taxonomy in v1: grouping and routing only, no editorial surface.
 
