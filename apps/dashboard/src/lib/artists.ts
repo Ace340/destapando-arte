@@ -21,7 +21,7 @@ export type ObrasRow = NonNullable<ArtistRow['artworks']>[number]
 export async function listArtists(): Promise<ArtistRow[]> {
   const { data, error } = await db()
     .from('artists')
-    .select('*, artworks(id, slug, title_es, year, story_status)')
+    .select('*, artworks!artworks_artist_id_fkey(id, slug, title_es, year, story_status)')
     .order('name')
   if (error) throw new Error(`Artistas: ${error.message}`)
   return (data ?? []) as ArtistRow[]

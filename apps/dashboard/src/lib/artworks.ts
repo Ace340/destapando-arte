@@ -20,7 +20,7 @@ export interface StoryBundle {
 export async function list(): Promise<CatalogRow[]> {
   const { data, error } = await db()
     .from('artworks')
-    .select('*, artists(slug, name)')
+    .select('*, artists!artworks_artist_id_fkey(slug, name)')
     .order('title_es')
   if (error) throw new Error(`Catálogo: ${error.message}`)
   return (data ?? []) as CatalogRow[]
@@ -29,7 +29,7 @@ export async function list(): Promise<CatalogRow[]> {
 export async function get(slug: string): Promise<StoryBundle | null> {
   const { data, error } = await db()
     .from('artworks')
-    .select('*, artists(slug, name)')
+    .select('*, artists!artworks_artist_id_fkey(slug, name)')
     .eq('slug', slug)
     .maybeSingle()
   if (error) throw new Error(`Obra ${slug}: ${error.message}`)

@@ -48,7 +48,7 @@ function unwrap<T>(response: { data: T | null; error: { message: string } | null
 export async function list(): Promise<CatalogRow[]> {
   const response = await supabaseClient()
     .from('artworks')
-    .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
+    .select('*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)')
     .eq('story_status', 'published')
     .order('title_es')
   return unwrap<CatalogRow[]>(response, 'Catálogo') ?? []
@@ -57,7 +57,7 @@ export async function list(): Promise<CatalogRow[]> {
 export async function get(slug: string): Promise<StoryBundle | null> {
   const response = await supabaseClient()
     .from('artworks')
-    .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
+    .select('*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)')
     .eq('slug', slug)
     .eq('story_status', 'published')
     .maybeSingle()

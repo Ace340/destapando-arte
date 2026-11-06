@@ -89,7 +89,7 @@ export async function listArtists(): Promise<ArtistListRow[]> {
     // !inner: only artists with at least one published obra — the section's
     // membership rule (GLOSSARY: Artistas (section)). The extra columns feed
     // resolveSello (ADR-0023): title/palette/display image of the first obra.
-    .select('*, artworks!inner(id, story_status, title_es, palette, image_assets(kind, source_url))')
+    .select('*, artworks!artworks_artist_id_fkey!inner(id, story_status, title_es, palette, image_assets(kind, source_url))')
     .eq('artworks.story_status', 'published')
     .order('name')
   return unwrap<ArtistListRow[]>(response, 'Artistas') ?? []
