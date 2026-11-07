@@ -1,5 +1,6 @@
 import { supabaseClient } from './supabase'
 import { displayUrl } from './image-url'
+import { unwrap } from './unwrap'
 import type { Artwork, Artist, Curiosity, Film, FilmConnection, ImageAsset } from './types'
 
 // Public reads through the anon key. RLS already hides unpublished works;
@@ -39,16 +40,10 @@ export function heroCredit(artwork: CatalogRow): string | null {
   return displayAsset(artwork)?.credit ?? null
 }
 
-// One honest error per query — the four fetches below share this shape.
-function unwrap<T>(response: { data: T | null; error: { message: string } | null }, label: string): T | null {
-  if (response.error) throw new Error(`${label}: ${response.error.message}`)
-  return response.data ?? null
-}
-
 export async function list(): Promise<CatalogRow[]> {
   const response = await supabaseClient()
     .from('artworks')
-    .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
+    .select('*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)')
     .eq('story_status', 'published')
     .order('title_es')
   return unwrap<CatalogRow[]>(response, 'Catálogo') ?? []
@@ -57,7 +52,7 @@ export async function list(): Promise<CatalogRow[]> {
 export async function get(slug: string): Promise<StoryBundle | null> {
   const response = await supabaseClient()
     .from('artworks')
-    .select('*, artists(slug, name), image_assets(kind, source_url, credit)')
+    .select('*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)')
     .eq('slug', slug)
     .eq('story_status', 'published')
     .maybeSingle()

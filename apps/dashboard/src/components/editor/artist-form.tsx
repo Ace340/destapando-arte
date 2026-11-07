@@ -1,5 +1,6 @@
 import { saveArtist } from '@/lib/actions'
 import type { Artist } from '@/lib/types'
+import { NativeSelect } from '@/components/native-select'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -14,9 +15,17 @@ import { Textarea } from '@/components/ui/textarea'
 
 const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
 
+export interface SelloOption {
+  id: string
+  title_es: string
+}
+
 // ADR-0022: hook + Bio. The hook is the artist page's face; the Bio is
 // optional enrichment added progressively — never a launch gate.
-export function ArtistForm({ artist }: { artist: Artist }) {
+// ADR-0023 (amended): the Sello select picks which of this artist's
+// published obras with a display image represents the artist — their art,
+// never their face; empty keeps the alphabetical derivation.
+export function ArtistForm({ artist, selloOptions }: { artist: Artist; selloOptions: SelloOption[] }) {
   return (
     <Card>
       <CardHeader>
@@ -47,6 +56,27 @@ export function ArtistForm({ artist }: { artist: Artist }) {
               Biografía — su historia (opcional, corta)
             </Label>
             <Textarea id="bio" name="bio" rows={5} defaultValue={artist.bio ?? ''} />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className={caption} htmlFor="sello_artwork_id">
+              Sello — la obra que lo representa (opcional)
+            </Label>
+            <NativeSelect
+              id="sello_artwork_id"
+              name="sello_artwork_id"
+              defaultValue={artist.sello_artwork_id ?? ''}
+            >
+              <option value="">Automático — primera obra publicada con imagen</option>
+              {selloOptions.map((obra) => (
+                <option key={obra.id} value={obra.id}>
+                  {obra.title_es}
+                </option>
+              ))}
+            </NativeSelect>
+            <p className="text-xs text-muted-foreground">
+              El círculo del artista muestra su arte, nunca su rostro (ADR-0023).
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
