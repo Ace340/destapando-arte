@@ -238,22 +238,52 @@ export async function createRequest(formData: FormData): Promise<void> {
 
 // ADR-0022: the artist's editorial pair — why_special (the 3–5 sentence
 // hook) and bio (optional short narrative). Enrichment, never a launch gate.
-// ADR-0023 (amended): sello_artwork_id points at the published obra that
-// represents the artist; null keeps the alphabetical derivation. The select
-// only offers this artist's published obras and the Tablero is a trusted
-// single-editor surface, so the pointer itself is trusted; the resolver
-// still honors it only when the obra is published.
+// ADR-0023 (amended 2026-11-06): sello_artwork_id points at the published
+// obra that represents the artist; null keeps the alphabetical derivation.
+// Trusted single-editor surface, but the pointer is still validated against
+// the resolver's rule: it must name one of this artist's published obras
+// WITH a display asset — the choice can upgrade the picture, never degrade
+// it to a monogram. A stale pointer fails the save with a clear message so
+// the editor fixes the choice instead of silently losing it.
 export async function saveArtist(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const born = parseInt(text(formData, 'born_year'), 10)
   const died = parseInt(text(formData, 'died_year'), 10)
+  const selloArtworkId = text(formData, 'sello_artwork_id') || null
+  if (selloArtworkId) {
+    const artist = await db().from('artists').select('id').eq('slug', slug).maybeSingle()
+    if (artist.error) throw new Error(`Guardar artista: ${artist.error.message}`)
+    if (artist.data) {
+      const pointed = await db()
+        .from('artworks')
+        .select('id, artist_id, story_status, image_assets(kind)')
+        .eq('id', selloArtworkId)
+        .maybeSingle()
+      if (pointed.error) throw new Error(`Guardar artista: ${pointed.error.message}`)
+      const obra = pointed.data as {
+        artist_id: string | null
+        story_status: string
+        image_assets: { kind: string }[] | null
+      } | null
+      if (
+        !obra ||
+        obra.artist_id !== (artist.data as { id: string }).id ||
+        obra.story_status !== 'published' ||
+        !(obra.image_assets ?? []).some((asset) => asset.kind === 'display')
+      ) {
+        throw new Error(
+          'Guardar artista: el Sello debe ser una obra publicada de este artista con imagen de display — elige otra o deja vacío.',
+        )
+      }
+    }
+  }
   const patch = {
     why_special: text(formData, 'why_special') || null,
     bio: text(formData, 'bio') || null,
     episode_youtube_id: text(formData, 'episode_youtube_id') || null,
     born_year: Number.isNaN(born) ? null : born,
     died_year: Number.isNaN(died) ? null : died,
-    sello_artwork_id: text(formData, 'sello_artwork_id') || null,
+    sello_artwork_id: selloArtworkId,
   }
   const { error } = await db().from('artists').update(patch).eq('slug', slug)
   if (error) throw new Error(`Guardar artista: ${error.message}`)

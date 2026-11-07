@@ -1,5 +1,6 @@
 import { supabaseClient } from './supabase'
 import { displayUrl } from './image-url'
+import { unwrap } from './unwrap'
 import type { Artwork, Artist, Curiosity, Film, FilmConnection, ImageAsset } from './types'
 
 // Public reads through the anon key. RLS already hides unpublished works;
@@ -37,12 +38,6 @@ export function heroSource(artwork: CatalogRow, width = 1080): string | null {
 // ADR-0016 attribution: cheap and honest — the display asset's credit line.
 export function heroCredit(artwork: CatalogRow): string | null {
   return displayAsset(artwork)?.credit ?? null
-}
-
-// One honest error per query — the four fetches below share this shape.
-function unwrap<T>(response: { data: T | null; error: { message: string } | null }, label: string): T | null {
-  if (response.error) throw new Error(`${label}: ${response.error.message}`)
-  return response.data ?? null
 }
 
 export async function list(): Promise<CatalogRow[]> {

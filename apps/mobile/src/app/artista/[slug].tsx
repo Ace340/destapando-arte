@@ -15,7 +15,7 @@ import { ObraFallback } from '@/components/obra-fallback'
 import { PrivacyFooter } from '@/components/privacy-footer'
 import { Sello } from '@/components/sello'
 import { BodyText, StorySection } from '@/components/story-section'
-import { artistInitials, getArtist, resolveSello, type ArtistBundle } from '@/lib/artists'
+import { artistInitials, getArtist, resolveSello, yearsLabel, type ArtistBundle } from '@/lib/artists'
 import { useTheme } from '@/lib/theme'
 import { useAsync } from '@/lib/use-async'
 
@@ -57,7 +57,7 @@ export default function Artista() {
   }
 
   const { artist, obras } = bundle
-  const years = [artist.born_year, artist.died_year].filter(Boolean).join(' – ')
+  const years = yearsLabel(artist)
   const sello = resolveSello(obras, artist.sello_artwork_id)
 
   return (

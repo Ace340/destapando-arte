@@ -5,3 +5,5 @@
 Rejected: hosted portrait column on `artists` (editorial workload, faces-not-art, a second thing to maintain — ADR-0022's drift argument); Wikidata/Commons portrait resolution at read time (rests on a link we don't control, ADR-0014).
 
 Amended 2026-11-02: the Tablero gains a Sello pointer (`sello_artwork_id`, migration 20261102120000) — the editor picks which published obra represents the artist; null keeps the alphabetical rule, and the pointer is honored only when the obra is published. The "never editor input" stance above is superseded for the *choice*, never for the *media*: the circle still shows their art (the pointed obra's display asset), still never a hosted face.
+
+Amended 2026-11-06: the pointer is honored only when the pointed obra is published AND carries a display asset. A pointer at a story-only obra defers to the alphabetical rule — the choice can upgrade the picture, never degrade it to a monogram, keeping "the circle still shows their art" literal. The Tablero select offers only this artist's published obras with a display image, and the save action rejects pointers that fail that rule.

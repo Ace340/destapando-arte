@@ -2,7 +2,7 @@ import { Link } from 'expo-router'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { Sello } from '@/components/sello'
-import { artistInitials, publishedCount, resolveSello, type ArtistListRow } from '@/lib/artists'
+import { artistInitials, publishedCount, resolveSello, yearsLabel, type ArtistListRow } from '@/lib/artists'
 import { useTheme } from '@/lib/theme'
 
 // Artist list row (ADR-0022) + the list separator, extracted from the
@@ -13,7 +13,7 @@ import { useTheme } from '@/lib/theme'
 export function ArtistRowItem({ artist }: { artist: ArtistListRow }) {
   const theme = useTheme()
   const count = publishedCount(artist)
-  const years = [artist.born_year, artist.died_year].filter(Boolean).join(' – ')
+  const years = yearsLabel(artist)
   const meta = [years, `${count} ${count === 1 ? 'obra' : 'obras'}`].filter(Boolean).join(' · ')
   const sello = resolveSello(artist.artworks, artist.sello_artwork_id)
 

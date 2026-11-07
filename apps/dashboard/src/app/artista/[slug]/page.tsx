@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createRequest } from '@/lib/actions'
-import { getArtist, type ArtistBundle } from '@/lib/artists'
+import { artistInitials, getArtist, resolveSello, yearsLabel, type ArtistBundle } from '@/lib/artists'
 import { isConfigured } from '@/lib/supabase-server'
 import { SetupNotice } from '@/components/setup-notice'
+import { Sello } from '@/components/sello'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +39,8 @@ export default async function Page(props: Props) {
   if (!bundle) notFound()
 
   const { artist, obras } = bundle
-  const years = [artist.born_year, artist.died_year].filter(Boolean).join(' – ')
+  const years = yearsLabel(artist)
+  const sello = resolveSello(obras, artist.sello_artwork_id)
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
@@ -46,8 +48,13 @@ export default async function Page(props: Props) {
         <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">
           Destapando el Arte
         </p>
-        <h1 className="mt-2 text-3xl font-semibold">{artist.name}</h1>
-        {years ? <p className="mt-1 text-zinc-600">{years}</p> : null}
+        <div className="mt-2 flex items-center gap-4">
+          <Sello imageUrl={sello.imageUrl} palette={sello.palette} initials={artistInitials(artist.name)} />
+          <div>
+            <h1 className="text-3xl font-semibold">{artist.name}</h1>
+            {years ? <p className="mt-1 text-zinc-600">{years}</p> : null}
+          </div>
+        </div>
       </header>
 
       {artist.why_special ? (

@@ -1,5 +1,5 @@
 import { saveArtist } from '@/lib/actions'
-import type { Artist, StoryStatus } from '@/lib/types'
+import type { Artist } from '@/lib/types'
 import { NativeSelect } from '@/components/native-select'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,14 +18,13 @@ const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foregrou
 export interface SelloOption {
   id: string
   title_es: string
-  story_status: StoryStatus
 }
 
 // ADR-0022: hook + Bio. The hook is the artist page's face; the Bio is
 // optional enrichment added progressively — never a launch gate.
-// ADR-0023 (amended): the Sello select picks which published obra represents
-// the artist — their art, never their face; empty keeps the alphabetical
-// derivation (first published obra with a display image).
+// ADR-0023 (amended): the Sello select picks which of this artist's
+// published obras with a display image represents the artist — their art,
+// never their face; empty keeps the alphabetical derivation.
 export function ArtistForm({ artist, selloOptions }: { artist: Artist; selloOptions: SelloOption[] }) {
   return (
     <Card>
