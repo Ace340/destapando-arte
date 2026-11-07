@@ -84,12 +84,26 @@ export async function createCuriosity(formData: FormData): Promise<void> {
   const { error } = await db().from('curiosities').insert({
     artwork_id: artworkId,
     position: (last?.position ?? 0) + 1,
+    title: text(formData, 'title') || null,
     text: body,
     type: text(formData, 'type') as CuriosityType,
     source_url: sourceUrl,
     source_note: text(formData, 'source_note') || null,
   })
   if (error) throw new Error(`Curiosidad: ${error.message}`)
+  revalidate(slug)
+}
+
+// The editorial headline shown as the collapsible label on /obra and in the
+// app. Optional: null keeps the text preview as the row label.
+export async function setCuriosityTitle(formData: FormData): Promise<void> {
+  const id = text(formData, 'id')
+  const slug = text(formData, 'slug')
+  const { error } = await db()
+    .from('curiosities')
+    .update({ title: text(formData, 'title') || null })
+    .eq('id', id)
+  if (error) throw new Error(`Título: ${error.message}`)
   revalidate(slug)
 }
 

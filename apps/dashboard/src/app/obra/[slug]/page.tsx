@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import { createRequest } from '@/lib/actions'
 import { get } from '@/lib/artworks'
 import { isConfigured } from '@/lib/supabase-server'
-import { CuriosityBadge } from '@/components/badges'
 import { SetupNotice } from '@/components/setup-notice'
 
 export const dynamic = 'force-dynamic'
@@ -78,10 +77,18 @@ export default async function Page(props: Props) {
                 <details className="group rounded-lg border border-zinc-200 p-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
                     <span className="min-w-0">
-                      <CuriosityBadge type={curiosity.type} />
-                      <span className="mt-2 block truncate text-sm text-zinc-600 group-open:hidden">
-                        {curiosity.text}
-                      </span>
+                      {curiosity.title ? (
+                        // The editorial headline is the row label — collapsed
+                        // and open. NULL keeps the old text preview, hidden
+                        // when open (the full text renders below).
+                        <span className="block truncate text-sm font-semibold">
+                          {curiosity.title}
+                        </span>
+                      ) : (
+                        <span className="block truncate text-sm text-zinc-600 group-open:hidden">
+                          {curiosity.text}
+                        </span>
+                      )}
                     </span>
                     <span aria-hidden className="text-zinc-400 transition-transform group-open:rotate-90">
                       ▸

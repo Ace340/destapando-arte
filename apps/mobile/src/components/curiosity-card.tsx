@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { CuriosityBadge } from '@/components/curiosity-badge'
 import { BodyText, SourceLink } from '@/components/story-section'
 import { useTheme } from '@/lib/theme'
 import type { Curiosity } from '@/lib/types'
 
 // One "Curiosidades que nadie te cuenta" card (extracted from the route).
-// Collapsed by default: the header (badge + one-line preview) toggles the
-// body (text + fuente). Parity with the web /obra details/summary rows.
+// Collapsed by default: the header (title, or one-line preview when the
+// curiosity is untitled) toggles the body (text + fuente). Parity with the
+// web /obra details/summary rows.
 
 export function CuriosityCard({ curiosity }: { curiosity: Curiosity }) {
   const theme = useTheme()
@@ -22,8 +22,11 @@ export function CuriosityCard({ curiosity }: { curiosity: Curiosity }) {
         style={styles.header}
       >
         <View style={styles.headerText}>
-          <CuriosityBadge type={curiosity.type} />
-          {!open ? (
+          {curiosity.title ? (
+            <Text numberOfLines={1} style={[styles.title, { color: theme.text }]}>
+              {curiosity.title}
+            </Text>
+          ) : !open ? (
             <Text numberOfLines={1} style={[styles.preview, { color: theme.muted }]}>
               {curiosity.text}
             </Text>
@@ -59,6 +62,10 @@ const styles = StyleSheet.create({
   headerText: {
     flex: 1,
     gap: 6,
+  },
+  title: {
+    fontFamily: 'Fraunces_600SemiBold',
+    fontSize: 16,
   },
   preview: {
     fontFamily: 'Inter_400Regular',
