@@ -8,6 +8,10 @@ import { SetupNotice } from '@/components/setup-notice'
 
 export const dynamic = 'force-dynamic'
 
+// Reading cap: only the first three curiosities (reading order) render on the
+// public page; the rest stay in the data layer. Mirrored on mobile Historia.
+const MAX_CURIOSITIES = 3
+
 type Props = PageProps<'/obra/[slug]'>
 
 // Public truth gate — the query-side mirror of the RLS policy: only published
@@ -69,18 +73,30 @@ export default async function Page(props: Props) {
         <section className="mt-8">
           <h2 className="text-lg font-semibold">Curiosidades que nadie te cuenta</h2>
           <ul className="mt-3 space-y-4">
-            {curiosities.map((curiosity) => (
-              <li key={curiosity.id} className="rounded-lg border border-zinc-200 p-4">
-                <CuriosityBadge type={curiosity.type} />
-                <p className="mt-2 leading-7 text-zinc-800">{curiosity.text}</p>
-                <a
-                  className="mt-2 inline-block text-xs text-sky-700 underline"
-                  href={curiosity.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  fuente
-                </a>
+            {curiosities.slice(0, MAX_CURIOSITIES).map((curiosity) => (
+              <li key={curiosity.id}>
+                <details className="group rounded-lg border border-zinc-200 p-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                    <span className="min-w-0">
+                      <CuriosityBadge type={curiosity.type} />
+                      <span className="mt-2 block truncate text-sm text-zinc-600 group-open:hidden">
+                        {curiosity.text}
+                      </span>
+                    </span>
+                    <span aria-hidden className="text-zinc-400 transition-transform group-open:rotate-90">
+                      ▸
+                    </span>
+                  </summary>
+                  <p className="mt-3 leading-7 text-zinc-800">{curiosity.text}</p>
+                  <a
+                    className="mt-2 inline-block text-xs text-sky-700 underline"
+                    href={curiosity.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    fuente
+                  </a>
+                </details>
               </li>
             ))}
           </ul>

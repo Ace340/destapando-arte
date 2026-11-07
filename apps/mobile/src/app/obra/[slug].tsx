@@ -37,6 +37,10 @@ import { useAsync } from '@/lib/use-async'
 
 const HERO_FRACTION = 0.62
 
+// Reading cap: only the first three curiosities (reading order) render on
+// Historia; the rest stay in the data. Mirrors the web /obra page.
+const MAX_CURIOSITIES = 3
+
 const NOT_FOUND_BODY =
   'Aquí solo existen las historias publicadas. Vuelve al catálogo y elige otra obra.'
 
@@ -133,7 +137,7 @@ export default function Historia() {
 
           {curiosities.length > 0 ? (
             <StorySection title="Curiosidades que nadie te cuenta">
-              {curiosities.map((curiosity) => (
+              {curiosities.slice(0, MAX_CURIOSITIES).map((curiosity) => (
                 <CuriosityCard key={curiosity.id} curiosity={curiosity} />
               ))}
             </StorySection>
