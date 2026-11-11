@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import { createRequest } from '@/lib/actions'
 import { get } from '@/lib/artworks'
 import { isConfigured } from '@/lib/supabase-server'
-import { CuriosityBadge } from '@/components/badges'
 import { SetupNotice } from '@/components/setup-notice'
 
 export const dynamic = 'force-dynamic'
@@ -78,15 +77,26 @@ export default async function Page(props: Props) {
                 <details className="group rounded-lg border border-zinc-200 p-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
                     <span className="min-w-0">
-                      <CuriosityBadge type={curiosity.type} />
-                      <span className="mt-2 block truncate text-sm text-zinc-600 group-open:hidden">
-                        {curiosity.text}
-                      </span>
+                      {curiosity.title ? (
+                        // The editorial headline is the row label while
+                        // collapsed; when open it reads as the body header
+                        // below (group-open:hidden avoids the duplicated
+                        // title). NULL keeps the old text preview, hidden
+                        // when open (the full text renders below).
+                        <span className="block truncate text-sm font-semibold group-open:hidden">
+                          {curiosity.title}
+                        </span>
+                      ) : (
+                        <span className="block truncate text-sm text-zinc-600 group-open:hidden">
+                          {curiosity.text}
+                        </span>
+                      )}
                     </span>
                     <span aria-hidden className="text-zinc-400 transition-transform group-open:rotate-90">
                       ▸
                     </span>
                   </summary>
+                  {curiosity.title ? <h3 className="mt-3 text-base font-semibold">{curiosity.title}</h3> : null}
                   <p className="mt-3 leading-7 text-zinc-800">{curiosity.text}</p>
                   <a
                     className="mt-2 inline-block text-xs text-sky-700 underline"

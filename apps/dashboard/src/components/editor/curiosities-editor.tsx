@@ -1,4 +1,4 @@
-import { createCuriosity, removeCuriosity } from '@/lib/actions'
+import { createCuriosity, removeCuriosity, setCuriosityTitle } from '@/lib/actions'
 import { CuriosityBadge } from '@/components/badges'
 import { NativeSelect } from '@/components/native-select'
 import { Button } from '@/components/ui/button'
@@ -41,6 +41,9 @@ export function CuriositiesEditor({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <CuriosityBadge type={curiosity.type} />
+                  {curiosity.title ? (
+                    <p className="mt-2 text-sm font-semibold">{curiosity.title}</p>
+                  ) : null}
                   <p className="mt-2 text-sm">{curiosity.text}</p>
                   <a
                     className="mt-1 inline-block text-xs text-primary underline underline-offset-4"
@@ -50,6 +53,20 @@ export function CuriositiesEditor({
                   >
                     fuente: {curiosity.source_note ?? curiosity.source_url}
                   </a>
+                  <form action={setCuriosityTitle} className="mt-3 flex items-center gap-2">
+                    <input type="hidden" name="id" value={curiosity.id} />
+                    <input type="hidden" name="slug" value={slug} />
+                    <Input
+                      name="title"
+                      defaultValue={curiosity.title ?? ''}
+                      placeholder="Título (opcional)"
+                      className="h-8 flex-1 text-sm"
+                      aria-label="Título de la curiosidad"
+                    />
+                    <Button type="submit" variant="outline" size="xs">
+                      guardar título
+                    </Button>
+                  </form>
                 </div>
                 <form action={removeCuriosity}>
                   <input type="hidden" name="id" value={curiosity.id} />
@@ -69,6 +86,12 @@ export function CuriositiesEditor({
         >
           <input type="hidden" name="artwork_id" value={artworkId} />
           <input type="hidden" name="slug" value={slug} />
+          <div className="space-y-1.5">
+            <Label className={caption} htmlFor="curiosity-title">
+              Título (opcional — encabezado en la página pública)
+            </Label>
+            <Input id="curiosity-title" name="title" />
+          </div>
           <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
             <div className="space-y-1.5">
               <Label className={caption} htmlFor="curiosity-text">

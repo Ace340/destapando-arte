@@ -58,6 +58,7 @@ export interface Curiosity {
   id: string
   artwork_id: string
   position: number
+  title: string | null
   text: string
   type: CuriosityType
   source_url: string
