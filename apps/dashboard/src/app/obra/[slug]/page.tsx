@@ -78,10 +78,12 @@ export default async function Page(props: Props) {
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
                     <span className="min-w-0">
                       {curiosity.title ? (
-                        // The editorial headline is the row label — collapsed
-                        // and open. NULL keeps the old text preview, hidden
+                        // The editorial headline is the row label while
+                        // collapsed; when open it reads as the body header
+                        // below (group-open:hidden avoids the duplicated
+                        // title). NULL keeps the old text preview, hidden
                         // when open (the full text renders below).
-                        <span className="block truncate text-sm font-semibold">
+                        <span className="block truncate text-sm font-semibold group-open:hidden">
                           {curiosity.title}
                         </span>
                       ) : (
@@ -94,6 +96,7 @@ export default async function Page(props: Props) {
                       ▸
                     </span>
                   </summary>
+                  {curiosity.title ? <h3 className="mt-3 text-base font-semibold">{curiosity.title}</h3> : null}
                   <p className="mt-3 leading-7 text-zinc-800">{curiosity.text}</p>
                   <a
                     className="mt-2 inline-block text-xs text-sky-700 underline"

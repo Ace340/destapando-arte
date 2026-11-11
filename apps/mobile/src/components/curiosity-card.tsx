@@ -7,8 +7,9 @@ import type { Curiosity } from '@/lib/types'
 
 // One "Curiosidades que nadie te cuenta" card (extracted from the route).
 // Collapsed by default: the header (title, or one-line preview when the
-// curiosity is untitled) toggles the body (text + fuente). Parity with the
-// web /obra details/summary rows.
+// curiosity is untitled) toggles the body — header → text → fuente when
+// titled, text + fuente otherwise. Parity with the web /obra details/summary
+// rows.
 
 export function CuriosityCard({ curiosity }: { curiosity: Curiosity }) {
   const theme = useTheme()
@@ -22,14 +23,19 @@ export function CuriosityCard({ curiosity }: { curiosity: Curiosity }) {
         style={styles.header}
       >
         <View style={styles.headerText}>
-          {curiosity.title ? (
-            <Text numberOfLines={1} style={[styles.title, { color: theme.text }]}>
-              {curiosity.title}
-            </Text>
-          ) : !open ? (
-            <Text numberOfLines={1} style={[styles.preview, { color: theme.muted }]}>
-              {curiosity.text}
-            </Text>
+          {!open ? (
+            curiosity.title ? (
+              // The editorial headline is the header while collapsed; when
+              // open it moves inside as the body header (no duplicated
+              // title). Untitled rows keep the one-line preview.
+              <Text numberOfLines={1} style={[styles.title, { color: theme.text }]}>
+                {curiosity.title}
+              </Text>
+            ) : (
+              <Text numberOfLines={1} style={[styles.preview, { color: theme.muted }]}>
+                {curiosity.text}
+              </Text>
+            )
           ) : null}
         </View>
         <Text aria-hidden style={[styles.chevron, { color: theme.faint }]}>
@@ -38,6 +44,9 @@ export function CuriosityCard({ curiosity }: { curiosity: Curiosity }) {
       </Pressable>
       {open ? (
         <View style={styles.body}>
+          {curiosity.title ? (
+            <Text style={[styles.bodyTitle, { color: theme.text }]}>{curiosity.title}</Text>
+          ) : null}
           <BodyText>{curiosity.text}</BodyText>
           <SourceLink url={curiosity.source_url} label="fuente" />
         </View>
@@ -66,6 +75,10 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Fraunces_600SemiBold',
     fontSize: 16,
+  },
+  bodyTitle: {
+    fontFamily: 'Fraunces_600SemiBold',
+    fontSize: 20,
   },
   preview: {
     fontFamily: 'Inter_400Regular',

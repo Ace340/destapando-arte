@@ -1,6 +1,10 @@
 # HANDOFF: header inside the curiosity collapsible
 
-Status: **live queue** for the next session (supersede/absorb into CANON.md once done).
+Status: **SUPERSEDED (2026-11-10)** — landed in the curiosity-titles session:
+the title renders as the body header when open (header → text → fuente, web
++ mobile parity), and migration 20261110120000 titled every curiosity (facts
+and leyendas included; chica-con-arete myth retitled «La Mona Lisa del
+Norte» per editorial decision). Doc citable as history only, never as a queue.
 Created: 2026-11-07, right after the curiosity `title` column landed (migration 20261107120000).
 
 ## What the user wants
