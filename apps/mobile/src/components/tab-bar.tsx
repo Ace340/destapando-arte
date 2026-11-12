@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useTheme } from '@/lib/theme'
 
-// Fixed bottom section bar (replaces the floating dock): the app's four
+// Fixed bottom section bar (replaces the floating dock): the app's five
 // sections as full-width edge-to-edge tabs — always visible, no
 // hide-on-scroll. iOS 26+: real liquid glass. Other platforms: themed
 // surface with a top hairline. Icons + labels; active state is color-only.
@@ -28,13 +28,15 @@ interface TabSection {
   icon: keyof typeof Ionicons.glyphMap
 }
 
-// Sections (GLOSSARY): Descubre (the catalog wall), the Artistas section,
-// the Cine section, and Favoritos (the user's local shelf of Obras).
+// Sections (GLOSSARY): Descubre (the catalog wall), the Artistas and
+// Ciudades sections (ADR-0024), the Cine section, and Favoritos (the
+// user's local shelf of Obras).
 // Single source of truth: (tabs)/_layout derives its Tabs.Screen
 // registrations from this list.
 export const SECTIONS: TabSection[] = [
   { name: 'index', label: 'Descubre', href: '/', icon: 'compass' },
   { name: 'artistas', label: 'Artistas', href: '/artistas', icon: 'people' },
+  { name: 'ciudades', label: 'Ciudades', href: '/ciudades', icon: 'business' },
   { name: 'cine', label: 'Cine', href: '/cine', icon: 'film' },
   { name: 'favoritos', label: 'Favoritos', href: '/favoritos', icon: 'heart' },
 ]

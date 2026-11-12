@@ -136,6 +136,20 @@ _Avoid_: películas, movies
 A locally saved Artwork bookmark — the user's own shelf, on-device only, no account (same stance as Avísame). The reader-chosen counterpart to a curated Colección.
 _Avoid_: bookmark, like
 
+## Las Ciudades
+
+**Ciudad**:
+A hand-created editorial entity: a city's art layer — the catalog obras with a physical instance there, plus the city's most important Lugares. Created in the Tablero; creation is the listing gate (no draft state). Mobile-only in v1.
+_Avoid_: destination, travel guide, city page
+
+**Lugar**:
+A hand-curated museum or gallery entry on a Ciudad page — the important ones, not exhaustive; may hold no catalog obra. Not a museum entity: that belongs to Modo Museo's future.
+_Avoid_: museum entity, venue, POI
+
+**Ciudades (section)**:
+The mobile browse tab of created cities, ordered by hand. Sits between Artistas and Cine. No web page in v1.
+_Avoid_: travel section, map view
+
 ## El Pipeline
 
 **Created**:
