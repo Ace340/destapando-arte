@@ -323,12 +323,24 @@ export async function saveCity(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const name = text(formData, 'name')
   const position = parseInt(text(formData, 'position'), 10)
+  const imageUrl = text(formData, 'image_url')
   if (!name) throw new Error('La ciudad necesita nombre.')
+  // ADR-0008: the picture is a Commons link, never a host of ours — the
+  // same boundary validation saveImage applies to artwork images.
+  if (imageUrl && !previewUrl(imageUrl)) {
+    throw new Error(
+      'La URL debe ser la página de archivo de Commons (https://commons.wikimedia.org/wiki/File:…).',
+    )
+  }
 
   if (slug) {
     // Update: the slug is fixed at creation (the app links by it); position
-    // keeps its value when the field comes back empty.
-    const patch: { name: string; position?: number } = { name }
+    // keeps its value when the field comes back empty; an emptied picture
+    // clears the link (null → the app shows the monogram placeholder).
+    const patch: { name: string; position?: number; image_url: string | null } = {
+      name,
+      image_url: imageUrl || null,
+    }
     if (!Number.isNaN(position)) patch.position = position
     const { error } = await db().from('cities').update(patch).eq('slug', slug)
     if (error) throw new Error(`Guardar ciudad: ${error.message}`)
@@ -366,6 +378,7 @@ export async function saveCity(formData: FormData): Promise<void> {
     slug: newSlug,
     name,
     position: Number.isNaN(position) ? (last?.position ?? 0) + 1 : position,
+    image_url: imageUrl || null,
   })
   if (error) throw new Error(`Ciudad: ${error.message}`)
   revalidateCity(newSlug)

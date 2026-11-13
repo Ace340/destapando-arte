@@ -98,6 +98,7 @@ export interface City {
   slug: string
   name: string
   position: number
+  image_url: string | null // Commons file page (ADR-0008); null = monogram placeholder
   created_at: string
 }
 

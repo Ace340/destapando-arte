@@ -1,6 +1,7 @@
 import { Link } from 'expo-router'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
+import { CityImage } from '@/components/city-image'
 import { lugarCount, type CityListRow } from '@/lib/cities'
 import { useTheme } from '@/lib/theme'
 
@@ -8,8 +9,8 @@ import { useTheme } from '@/lib/theme'
 // Ciudades route. The separator is a module-scope component so FlatList
 // sees one stable type — an inline arrow remounts separators on every
 // re-render. Same shape as the artist row (artist-row.tsx), minus the
-// Sello: a city has no picture, only its name, its hand order, and its
-// Lugares count.
+// Sello: the city picture is the editor's optional Commons link (ADR-0008)
+// or the initial monogram placeholder (city-image.tsx).
 
 export function CityRowItem({ city }: { city: CityListRow }) {
   const theme = useTheme()
@@ -19,6 +20,14 @@ export function CityRowItem({ city }: { city: CityListRow }) {
   return (
     <Link href={{ pathname: '/ciudad/[slug]', params: { slug: city.slug } }} asChild>
       <Pressable style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}>
+        <CityImage
+          imageUrl={city.image_url}
+          name={city.name}
+          width={48}
+          height={48}
+          radius={9999}
+          recyclingKey={city.id}
+        />
         <View style={styles.rowText}>
           <Text style={[styles.name, { color: theme.text }]}>{city.name}</Text>
           <Text style={[styles.meta, { color: theme.muted }]}>{meta}</Text>

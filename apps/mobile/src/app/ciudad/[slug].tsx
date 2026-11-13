@@ -5,11 +5,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CatalogRowItem, CatalogSeparator } from '@/components/catalog-row'
+import { CityImage } from '@/components/city-image'
 import { LugarRow } from '@/components/lugar-row'
 import { ObraFallback } from '@/components/obra-fallback'
 import { PrivacyFooter } from '@/components/privacy-footer'
@@ -31,6 +33,7 @@ export default function Ciudad() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
   const theme = useTheme()
   const insets = useSafeAreaInsets()
+  const { width: screenWidth } = useWindowDimensions()
 
   const fetchCity = useCallback(async () => {
     if (typeof slug !== 'string' || !slug) return null
@@ -68,6 +71,19 @@ export default function Ciudad() {
     >
       <Text style={[styles.brand, { color: theme.faint }]}>Destapando el Arte</Text>
       <Text style={[styles.name, { color: theme.text }]}>{city.name}</Text>
+
+      {/* The city picture (ADR-0008): the editor's Commons link or the
+          initial monogram placeholder — the honest empty state, same rule
+          as the Lugares list. */}
+      <CityImage
+        imageUrl={city.image_url}
+        name={city.name}
+        width={screenWidth - 48} // paddingHorizontal: 24 each side
+        height={168}
+        radius={16}
+        recyclingKey={city.id}
+        style={styles.hero}
+      />
 
       <StorySection title="Obras aquí">
         {obras.length > 0 ? (
@@ -113,6 +129,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontFamily: 'Fraunces_600SemiBold',
     fontSize: 28,
+  },
+  hero: {
+    marginTop: 16,
   },
   center: {
     marginTop: 48,
