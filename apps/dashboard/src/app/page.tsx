@@ -1,5 +1,6 @@
 import { list } from '@/lib/artworks'
 import { listArtists } from '@/lib/artists'
+import { listCities } from '@/lib/cities'
 import { isConfigured } from '@/lib/supabase-server'
 import { IndexedBadge, RightsBadge, StatusBadge } from '@/components/badges'
 import { SetupNotice } from '@/components/setup-notice'
@@ -32,7 +33,7 @@ const PENDING_GATES: readonly { title: string; target: string }[] = [
 
 export default async function Home() {
   if (!isConfigured()) return <SetupNotice />
-  const [rows, artists] = await Promise.all([list(), listArtists()])
+  const [rows, artists, cities] = await Promise.all([list(), listArtists(), listCities()])
 
   const published = rows.filter((row) => row.story_status === 'published').length
 
@@ -200,6 +201,53 @@ export default async function Home() {
                     </TableRow>
                   )
                 })
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+      </section>
+
+      <section aria-label="Ciudades" className="mt-10">
+        <header className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-xl font-semibold">Ciudades</h2>
+          <p className="text-sm text-muted-foreground">
+            la capa de ciudad — creadas a mano, crear es publicar (ADR-0024)
+          </p>
+        </header>
+        <Card className="mt-4 gap-0 py-0">
+          <Table className="[&_th]:h-11 [&_th]:px-4 [&_td]:px-4 [&_td]:py-3">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Ciudad</TableHead>
+                <TableHead>Lugares</TableHead>
+                <TableHead>Obras aquí</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {cities.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                    No hay ciudades — crea la primera en Ciudades.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                cities.map((city) => (
+                  <TableRow key={city.id}>
+                    <TableCell className="font-medium">{city.name}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {city.places.length}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {city.publishedObras}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <ButtonLink variant="link" size="sm" href={`/ciudades/${city.slug}`}>
+                        editar
+                      </ButtonLink>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>

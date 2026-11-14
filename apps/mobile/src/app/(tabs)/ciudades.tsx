@@ -1,0 +1,65 @@
+import { useCallback } from 'react'
+import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native'
+
+import { CityCard } from '@/components/city-card'
+import { SectionEmpty, SectionScreen } from '@/components/section-screen'
+import { SetupNotice } from '@/components/setup-notice'
+import { listCities, type CityListRow } from '@/lib/cities'
+import { isConfigured } from '@/lib/supabase'
+import { useTheme } from '@/lib/theme'
+import { useAsync } from '@/lib/use-async'
+
+// GLOSSARY Ciudades (section) / ADR-0024: hand-created editorial entities —
+// the Tablero creates them and creation is the listing gate (no draft
+// state, no derived threshold). Card rendering lives in src/components
+// (AGENTS.md) — the Descubre wall's shape (ADR-0020) at half the art
+// height, so no separators: the caption padding sets the rhythm.
+
+export default function Ciudades() {
+  const theme = useTheme()
+  // One configured check per render: guards both the fetch (listCities needs
+  // a configured client) and the early return below.
+  const configured = isConfigured()
+  const fetchCities = useCallback(() => (configured ? listCities() : null), [configured])
+  const state = useAsync<CityListRow[]>(fetchCities)
+
+  if (!configured) return <SetupNotice />
+
+  return (
+    <SectionScreen subtitle="Ciudades">
+      {state.kind === 'loading' ? (
+        <ActivityIndicator style={styles.center} size="large" color={theme.muted} />
+      ) : null}
+      {state.kind === 'error' ? <Text style={[styles.error, { color: theme.episode }]}>{state.message}</Text> : null}
+      {state.kind === 'ready' ? (
+        state.data.length > 0 ? (
+          <FlatList
+            data={state.data}
+            keyExtractor={(city) => city.id}
+            renderItem={({ item }) => <CityCard city={item} />}
+            contentContainerStyle={styles.list}
+          />
+        ) : (
+          <SectionEmpty
+            title="Todavía no hay ciudades"
+            hint="Las primeras ciudades llegarán pronto"
+          />
+        )
+      ) : null}
+    </SectionScreen>
+  )
+}
+
+const styles = StyleSheet.create({
+  center: {
+    marginTop: 48,
+  },
+  error: {
+    marginTop: 24,
+    fontSize: 14,
+  },
+  list: {
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+})

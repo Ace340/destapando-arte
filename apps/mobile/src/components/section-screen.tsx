@@ -8,6 +8,11 @@ import { useTheme } from '@/lib/theme'
 // safe-area inset, and the brand + section-subtitle header. Absorbs the
 // theme/inset wiring the four screens used to duplicate.
 
+// Horizontal gutter (per side) the scaffold applies to every section
+// screen — full-width content on a section (the Ciudad cards) reads it
+// to size itself to the padded area.
+export const GUTTER = 24
+
 export function SectionScreen({
   subtitle,
   children,
@@ -44,7 +49,7 @@ export function SectionEmpty({ title, hint }: { title: string; hint: string }) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: GUTTER,
   },
   brand: {
     fontFamily: 'Inter_500Medium',

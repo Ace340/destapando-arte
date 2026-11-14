@@ -6,6 +6,7 @@
 import { revalidatePath } from 'next/cache'
 import { db } from './supabase-server'
 import { previewUrl } from './image-url'
+import { slugifyCity } from './cities'
 import type { CuriosityType, EvidenceVisual, ImageKind, StoryStatus } from './types'
 
 // ADR-0005: forward-only line. 'published' is terminal.
@@ -61,6 +62,32 @@ export async function advance(formData: FormData): Promise<void> {
   revalidate(slug)
 }
 
+// Next free slot: max + 1. count+1 would collide with the gaps the remove
+// actions leave behind (unique(*, position) rejects it). The optional filter
+// scopes the max to one parent (artwork, city).
+async function nextSlot(
+  table: 'curiosities' | 'cities' | 'city_places',
+  filterColumn?: string,
+  filterValue?: string,
+): Promise<number> {
+  const { data: last } =
+    filterColumn && filterValue
+      ? await db()
+          .from(table)
+          .select('position')
+          .eq(filterColumn, filterValue)
+          .order('position', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : await db()
+          .from(table)
+          .select('position')
+          .order('position', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+  return (last?.position ?? 0) + 1
+}
+
 export async function createCuriosity(formData: FormData): Promise<void> {
   const artworkId = text(formData, 'artwork_id')
   const slug = text(formData, 'slug')
@@ -71,19 +98,9 @@ export async function createCuriosity(formData: FormData): Promise<void> {
     throw new Error('ADR-0007: la curiosidad necesita texto y fuente.')
   }
 
-  // Next free slot: max + 1. count+1 would collide with the gaps that
-  // removeCuriosity leaves behind (unique(artwork_id, position) rejects it).
-  const { data: last } = await db()
-    .from('curiosities')
-    .select('position')
-    .eq('artwork_id', artworkId)
-    .order('position', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
   const { error } = await db().from('curiosities').insert({
     artwork_id: artworkId,
-    position: (last?.position ?? 0) + 1,
+    position: await nextSlot('curiosities', 'artwork_id', artworkId),
     title: text(formData, 'title') || null,
     text: body,
     type: text(formData, 'type') as CuriosityType,
@@ -304,4 +321,171 @@ export async function saveArtist(formData: FormData): Promise<void> {
   revalidatePath('/')
   revalidatePath(`/taller/${slug}`)
   revalidatePath(`/artista/${slug}`)
+}
+
+// ---------------------------------------------------------------------------
+// Las Ciudades (ADR-0024) — hand-created editorial entities; creation is the
+// listing gate. Places (GLOSSARY: Lugar) are the hand-curated Lugares list.
+// The city↔instance link is by NAME: cities.name = physical_instances.city.
+// ---------------------------------------------------------------------------
+
+function revalidateCity(slug: string): void {
+  revalidatePath('/')
+  revalidatePath('/ciudades')
+  revalidatePath(`/ciudades/${slug}`)
+}
+
+export async function saveCity(formData: FormData): Promise<void> {
+  const slug = text(formData, 'slug')
+  const name = text(formData, 'name')
+  const position = parseInt(text(formData, 'position'), 10)
+  const imageUrl = text(formData, 'image_url')
+  const story = text(formData, 'story')
+  if (!name) throw new Error('La ciudad necesita nombre.')
+  // ADR-0008: the picture is a Commons link, never a host of ours — the
+  // same boundary validation saveImage applies to artwork images.
+  if (imageUrl && !previewUrl(imageUrl)) {
+    throw new Error(
+      'La URL debe ser la página de archivo de Commons (https://commons.wikimedia.org/wiki/File:…).',
+    )
+  }
+
+  if (slug) {
+    // Update: the slug is fixed at creation (the app links by it); position
+    // keeps its value when the field comes back empty; an emptied picture
+    // clears the link (null → the app shows the monogram placeholder); an
+    // emptied story clears the paragraph (null → no story section renders).
+    // The city↔instance link is by NAME (ADR-0024) — a rename would orphan
+    // the derived «Obras aquí» with no guard. Same rule as saveArtist's
+    // stale Sello pointer: fail the save with the count so the editor
+    // resolves the coupling instead of silently losing the obras.
+    const { data: current, error: currentError } = await db()
+      .from('cities')
+      .select('name')
+      .eq('slug', slug)
+      .maybeSingle()
+    if (currentError) throw new Error(`Guardar ciudad: ${currentError.message}`)
+    if (current && current.name !== name) {
+      const { count, error: linkError } = await db()
+        .from('physical_instances')
+        .select('id', { count: 'exact', head: true })
+        .eq('city', current.name)
+      if (linkError) throw new Error(`Guardar ciudad: ${linkError.message}`)
+      if ((count ?? 0) > 0) {
+        throw new Error(
+          `Guardar ciudad: «${current.name}» tiene ${count} ${
+            count === 1 ? 'obra enlazada' : 'obras enlazadas'
+          } por nombre — renombrar rompería «Obras aquí». Actualiza las instancias primero o mantén el nombre.`,
+        )
+      }
+    }
+    const patch: {
+      name: string
+      position?: number
+      image_url: string | null
+      story: string | null
+    } = {
+      name,
+      image_url: imageUrl || null,
+      story: story || null,
+    }
+    if (!Number.isNaN(position)) patch.position = position
+    const { error } = await db().from('cities').update(patch).eq('slug', slug)
+    if (error) throw new Error(`Guardar ciudad: ${error.message}`)
+    revalidateCity(slug)
+    return
+  }
+
+  // Create: the slug derives from the name — a duplicate means the city
+  // already exists (creation is the listing gate, ADR-0024).
+  const newSlug = slugifyCity(name)
+  if (!newSlug) {
+    throw new Error('El nombre no produce un slug válido — usa letras y números.')
+  }
+  const { data: existing } = await db()
+    .from('cities')
+    .select('slug')
+    .eq('slug', newSlug)
+    .maybeSingle()
+  if (existing) {
+    throw new Error(
+      `Ya existe una ciudad con el slug «${newSlug}» — edítala en /ciudades/${newSlug}.`,
+    )
+  }
+
+  const { error } = await db().from('cities').insert({
+    slug: newSlug,
+    name,
+    // Next free slot: max + 1 — a hand order stays gap-free (no unique
+    // constraint on cities.position, but consistency is cheap).
+    position: Number.isNaN(position) ? await nextSlot('cities') : position,
+    image_url: imageUrl || null,
+    story: story || null,
+  })
+  if (error) throw new Error(`Ciudad: ${error.message}`)
+  revalidateCity(newSlug)
+}
+
+export async function savePlace(formData: FormData): Promise<void> {
+  const cityId = text(formData, 'city_id')
+  const citySlug = text(formData, 'city_slug')
+  const placeId = text(formData, 'place_id')
+  const name = text(formData, 'name')
+  const url = text(formData, 'url')
+  const position = parseInt(text(formData, 'position'), 10)
+  if (!cityId) throw new Error('Lugar: falta la ciudad.')
+  if (!name) throw new Error('El lugar necesita nombre.')
+  // ADR-0014: links are opt-in and verified — never a bare domain.
+  if (url && !/^https:\/\//i.test(url)) {
+    throw new Error('La URL del lugar debe empezar por https:// — o déjala vacía.')
+  }
+
+  if (placeId) {
+    const patch: {
+      name: string
+      note: string | null
+      url: string | null
+      position?: number
+    } = {
+      name,
+      note: text(formData, 'note') || null,
+      url: url || null,
+    }
+    if (!Number.isNaN(position)) patch.position = position
+    const { error } = await db().from('city_places').update(patch).eq('id', placeId)
+    if (error) throw new Error(`Lugar: ${error.message}`)
+  } else {
+    // A hand-taken position that collides hits unique(city_id, position)
+    // and its error surfaces here; the Lugares form explains this in the
+    // Tablero.
+    const slot = Number.isNaN(position) ? await nextSlot('city_places', 'city_id', cityId) : position
+    const { error } = await db().from('city_places').insert({
+      city_id: cityId,
+      name,
+      note: text(formData, 'note') || null,
+      url: url || null,
+      position: slot,
+    })
+    if (error) throw new Error(`Lugar: ${error.message}`)
+  }
+  revalidateCity(citySlug)
+}
+
+export async function removePlace(formData: FormData): Promise<void> {
+  const id = text(formData, 'id')
+  const citySlug = text(formData, 'city_slug')
+  const { error } = await db().from('city_places').delete().eq('id', id)
+  if (error) throw new Error(`Quitar lugar: ${error.message}`)
+  revalidateCity(citySlug)
+}
+
+export async function removeCity(formData: FormData): Promise<void> {
+  const slug = text(formData, 'slug')
+  // Places cascade in the database (city_places.city_id ON DELETE CASCADE);
+  // a city is a cheap hand-created row — unlike obras/artists, whose removal
+  // has no editorial precedent, this delete is reversible by re-creating.
+  const { error } = await db().from('cities').delete().eq('slug', slug)
+  if (error) throw new Error(`Eliminar ciudad: ${error.message}`)
+  revalidatePath('/')
+  revalidatePath('/ciudades')
 }

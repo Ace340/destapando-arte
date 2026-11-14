@@ -246,3 +246,36 @@ Origin: two-axis code review (Standards + Spec, parallel sub-agents) of the Desc
 2. Manual smoke test in Expo Go (cold cache): wall scroll, cold-start Apertura re-pick, story-only gradient card (las-dos-fridas), floating Descubre title over images, empty state, tabs + obra round-trip.
 3. `/setup-matt-pocock-skills` — the issue tracker (`docs/agents/issue-tracker.md`) is still missing; reviews currently fall back to commit-message specs.
 4. Carried queues unchanged: kickoff queue (Avísame server route, obra del día, push sender, EAS + Play internal track), standing editorial items, Mauritshuis/Prado re-verification, push slot collision (ADR-0018), external ledger.
+
+## Ciudades session (2026-11-11) — ADR-0024 + full feature BUILT (Increment 20)
+
+Grill session → decisions on disk: **ADR-0024** (Ciudades is a hand-created editorial entity, mobile-only v1, creation = listing gate; rejected city facts on ADR-0007/0014 honesty grounds, rejected pure-derived view on the Casa Azul case; Modo Museo stays separate — same `physical_instances` spine, different altitude) + **GLOSSARY «Las Ciudades»** (Ciudad, Lugar, Ciudades (section)). Patrick stripped his own "history facts" idea mid-grill when the Banksy sourcing problem surfaced — the ADR records the rejection.
+
+**The build (spine + parallel delegation):** migration `20261111120000_cities.sql` (cities + city_places, public-read RLS, constraints cite ADR-0024, glossary mapping in comments); seed `supabase/story-loads/ciudades.sql` (nueva-york pos 1, ciudad-de-mexico pos 2, 8 Lugares total, not-exists guards — idempotency proven by re-run; **loaded via docker cp + psql -f**, byte-verified 16 chars/17 bytes; a false accent alarm came from testing ó against *México* — the hex dump settled it, é is correct); both types.ts copies gained `City`/`CityPlace`/`PhysicalInstance` in the same commit (no-drift). Dashboard + mobile built by two parallel CoderAgents off a shared bundle (`.tmp/sessions/2026-11-11-ciudades-feature/context.md`): Tablero `/ciudades` list + city editor (CityForm, PlacesEditor CRUD, «Obras aquí» derived card, nav section, actions `saveCity`/`savePlace`/`removePlace`/`removeCity`); mobile 5th tab (Ciudades between Artistas and Cine, Ionicons `business`), `(tabs)/ciudades.tsx`, `ciudad/[slug].tsx` at root Stack, honest Spanish empty states.
+
+**Validation lessons (both agents' sandboxes denied shell — orchestrator ran the battery):**
+- *Untyped supabase client + `!inner`:* the dashboard's untyped `db()` cannot parse `!inner` out of a select string, so inference stays array-shaped and tsc rejects object casts even when runtime is right. **House pattern going forward: query from the parents side** (`artworks` + `physical_instances!inner(city)` + `.eq('physical_instances.city', …)`) so one-to-many arrays make type and runtime agree with no cast bridge — dashboard `lib/cities.ts` rewritten to it, mirroring the mobile agent's pattern. Many-to-one embeds (artworks→artists) DO return objects at runtime, which is why the existing catalog pattern always worked.
+- *Typed routes:* stale `.expo/types` after adding routes — `npx expo customize tsconfig.json` regenerates (documented no-dev-server path).
+- **SDK correction:** mobile `package.json` says `expo ^58.0.22`, not SDK 57 as older session records claim — agents verified against v58 docs per AGENTS.md.
+
+**Final state:** dashboard lint + tsc + `next build` green (`/ciudades/[slug]` in the route manifest); mobile expo lint + tsc green; SSR smoke on the live stack: `/ciudades` 200 with both cities, `/ciudades/nueva-york` 200 (MoMA + Metropolitan as Lugares, noche-estrellada derived), `/ciudades/ciudad-de-mexico` 200 (MAM Lugares + Casa Azul/Munal/Bellas Artes, las-dos-fridas derived). Dev server left running.
+
+**Next steps (queue — reorder is Patrick's call):**
+1. **Patrick's passes (standing convention):** Tablero write path (saveCity/savePlace/removeCity) never click-tested; mobile Expo Go smoke — 5 tabs, city list → detail → obra round-trip.
+2. `supabase db push` for the new migration when the remote project lands (same pending state as the curiosity-title migrations).
+3. Carried queues unchanged: kickoff queue (Avísame server route, obra del día, push sender, EAS + Play internal track), why_special ×5, Avísame click-test, frame-analysis passes, Mauritshuis/Prado re-verification, push slot collision (ADR-0018), external ledger.
+
+## Remote push session (2026-11-14) — schema synced to cloud (Increment 22)
+
+The standing `supabase db push` pending item CLOSED (the CANON §Ciudades queue item and the handoff doc's PENDING note both flipped). Ledger note: Increment 21 (city picture plumbing, commit `864633d`) landed without a CANON record — its commit message stands as the record, 13–14 precedent.
+
+**Cloud project created and linked by Patrick** (the human steps: `supabase login` browser auth, then `supabase link` with the DB password into the OS keyring): org «destapando-arte» (`mqzrrwetbdnjfbwfglto`), project ref `bzzavpaqsrpuuyolxhbx`, West US, created 2026-11-14 11:55 UTC. Two CLI gotchas cost a detour and are recorded so they don't recur: (1) CLI 2.118's `projects list` NAME column showed "Ace340's Project" for the new project while `orgs list` proved `mqzrrwet…` is the ORG id — we linked the org id first and got a fast 404 ("Authorization failed for the access token and project ref pair"); the dashboard Project URL (`https://bzzavpaqsrpuuyolxhbx.supabase.co`) is the authoritative ref source. (2) The same 404 is also what a freshly-created, still-provisioning project returns — wait for the dashboard to show Active before linking.
+
+**The push:** `supabase db push --dry-run` → `db push` applied all 7 migrations to the virgin remote (`init_schema` → `city_image`, incl. the ADR-enforcement triggers); `migration list` verified local/remote in sync. **Schema only, Patrick's explicit call** — remote tables are EMPTY: `seed.sql`, `supabase/story-loads/*`, and the two city picture links (entered via the Tablero against the local stack) did NOT travel. `db push` never copies data.
+
+Ops: CLI 2.118.0 (v3.1.0 available, not urgent); verified v2.118 CLI docs cached at `.tmp/external-context/supabase-cli/` (ExternalScout — real files + manifest this time, answering the standing caveat about false cache claims).
+
+**Next steps (queue — reorder is Patrick's call):**
+1. **Data-sync decision for the remote** — city pictures + all content are currently local-only; required before any deployed app points at the cloud. Options: dump/restore, idempotent sync SQL, or re-entry.
+2. `cities.story` build (handoff doc item 2) — unchanged, next build work.
+3. Carried queues unchanged: kickoff queue (Avísame server route, obra del día, push sender, EAS + Play internal track), why_special ×5, Avísame click-test, frame-analysis passes, Mauritshuis/Prado re-verification, push slot collision (ADR-0018), external ledger.

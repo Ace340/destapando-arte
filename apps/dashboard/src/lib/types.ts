@@ -83,3 +83,32 @@ export interface FilmConnection {
   evidence_visual: EvidenceVisual
   evidence_url: string | null
 }
+
+export interface PhysicalInstance {
+  id: string
+  artwork_id: string
+  version_note: string | null
+  location: string | null
+  city: string | null
+  country: string | null
+}
+
+export interface City {
+  id: string
+  slug: string
+  name: string
+  position: number
+  image_url: string | null // Commons file page (ADR-0008); null = monogram placeholder
+  story: string | null // one editorial paragraph (ADR-0024); null = no story section
+  created_at: string
+}
+
+export interface CityPlace {
+  id: string
+  city_id: string
+  name: string
+  note: string | null
+  url: string | null
+  position: number
+  created_at: string
+}
