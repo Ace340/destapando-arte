@@ -30,11 +30,16 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F4F4F5",
+          "backgroundColor": "#E9E8E2",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 76,
+          "dark": {
+            "backgroundColor": "#15141A"
+          }
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

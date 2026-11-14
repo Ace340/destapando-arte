@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Destapando el Arte</title>
+<style>
+:root{--bg:#e9e8e2;--bg2:#fbfaf6;--fg:#1d1a26;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15141a;--bg2:#2c2a33;--fg:#f1eee6}}
+:root[data-theme="dark"]{--bg:#15141a;--bg2:#2c2a33;--fg:#f1eee6}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 55%,var(--bg2),var(--bg) 70%);color:var(--fg);font-family:Georgia,"Times New Roman",serif;overflow:hidden;position:relative}
+.grain{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.22;mix-blend-mode:multiply;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .3  0 0 0 0 .3  0 0 0 .6 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
+.hills{position:absolute;left:0;right:0;bottom:0;height:20%;z-index:0;background:linear-gradient(#8a8a90,#4a4a52);opacity:.45;clip-path:polygon(0 40%,15% 25%,35% 38%,55% 18%,78% 34%,100% 15%,100% 100%,0 100%)}
+.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+svg.main{height:94%;max-width:100%;position:relative;z-index:2;overflow:visible}
+.blob{position:absolute;border-radius:50%;opacity:0;transform:scale(0);z-index:1;filter:url(#rough);mix-blend-mode:multiply}
+.play .blob{animation:burst 1.4s cubic-bezier(.1,.9,.25,1) var(--d) forwards}
+@keyframes burst{0%{transform:scale(0);opacity:0}25%{opacity:.75}100%{transform:scale(1);opacity:.5}}
+.it{opacity:0;transform-box:fill-box;transform-origin:50% 100%;filter:url(#sh)}
+.play .it{animation:pop 1.5s cubic-bezier(.3,.7,.3,1) var(--d) forwards,bob 4s ease-in-out calc(var(--d) + 1.6s) infinite alternate}
+@keyframes pop{0%{opacity:0;transform:translate(0,170px) scale(.5) rotate(0)}10%{opacity:1}55%{opacity:1;transform:translate(var(--x,0),var(--o,-70px)) scale(1.06) rotate(calc(var(--r)*1.8))}100%{opacity:1;transform:translate(0,0) scale(1) rotate(var(--r))}}
+@keyframes bob{from{transform:translateY(0) rotate(var(--r))}to{transform:translateY(-7px) rotate(calc(var(--r) + 1.5deg))}}
+.swirl{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);opacity:0}
+.play .swirl{animation:rise 1.4s cubic-bezier(.2,.8,.3,1) 1.2s forwards}
+@keyframes rise{to{transform:scaleY(1);opacity:1}}
+#lid{transform-box:fill-box;transform-origin:50% 50%;filter:url(#sh)}
+.play #lid{animation:lid 2.4s cubic-bezier(.4,0,.6,1) .2s forwards}
+@keyframes lid{0%,8%{transform:none}12%{transform:translateY(-3px) rotate(-2deg)}16%{transform:translateY(0) rotate(2deg)}20%{transform:translateY(-5px) rotate(-1.5deg) scale(1.01)}30%{transform:translate(8px,-50px) rotate(-14deg) scale(1,.8)}55%{transform:translate(70px,-210px) rotate(20deg) scale(1,.45);opacity:1}100%{transform:translate(160px,-120px) rotate(150deg) scale(1,.7);opacity:0}}
+#can{transform-box:fill-box;transform-origin:50% 100%}
+.play #can{animation:squash .7s ease-out 1s}
+@keyframes squash{0%{transform:scale(1)}25%{transform:scale(1.035,.955)}60%{transform:scale(.99,1.02)}100%{transform:scale(1)}}
+.title{opacity:0;font-size:46px;letter-spacing:1.5px}
+.play .title{animation:fade 1.8s ease 3s forwards}
+@keyframes fade{from{opacity:0;transform:translateY(12px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+button{position:absolute;z-index:5;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:99px;border:1px solid var(--fg);background:transparent;color:var(--fg);font:inherit;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.play *{animation-duration:.01s!important;animation-delay:0s!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<filter id="rough" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="60"/><feGaussianBlur stdDeviation="2"/></filter>
+</defs></svg>
+<div class="hills"></div>
+<div class="stage" id="root">
+<div class="blob" style="--d:1.1s;left:10%;top:16%;width:240px;height:240px;background:radial-gradient(circle,#ff4f87 45%,transparent 70%)"></div>
+<div class="blob" style="--d:1.2s;right:8%;top:12%;width:280px;height:280px;background:radial-gradient(circle,#1fb8aa 45%,transparent 70%)"></div>
+<div class="blob" style="--d:1.3s;left:16%;bottom:20%;width:250px;height:250px;background:radial-gradient(circle,#ffb020 45%,transparent 70%)"></div>
+<div class="blob" style="--d:1.15s;right:14%;bottom:24%;width:230px;height:230px;background:radial-gradient(circle,#6a4cff 45%,transparent 70%)"></div>
+<div class="blob" style="--d:1.4s;left:38%;top:2%;width:200px;height:200px;background:radial-gradient(circle,#7bd957 45%,transparent 70%)"></div>
+<div class="blob" style="--d:1.35s;left:0;top:50%;width:170px;height:170px;background:radial-gradient(circle,#ff7a2f 45%,transparent 70%)"></div>
+<div class="blob" style="--d:1.25s;right:0;top:54%;width:180px;height:180px;background:radial-gradient(circle,#3aa0ff 45%,transparent 70%)"></div>
+
+<svg class="main" viewBox="0 0 600 760" role="img" aria-label="Una lata se abre y salen herramientas de arte">
+<defs>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="3" dy="7" stdDeviation="5" flood-color="#000" flood-opacity=".38"/></filter>
+<filter id="soft"><feGaussianBlur stdDeviation="9"/></filter>
+<linearGradient id="tin" x1="0" x2="1"><stop offset="0" stop-color="#7d818c"/><stop offset=".12" stop-color="#c6c9d1"/><stop offset=".3" stop-color="#fbfbfd"/><stop offset=".45" stop-color="#d4d7de"/><stop offset=".75" stop-color="#9da1ab"/><stop offset=".92" stop-color="#d0d3da"/><stop offset="1" stop-color="#6d717b"/></linearGradient>
+<linearGradient id="rib" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset=".3" stop-color="#fff" stop-opacity=".0"/><stop offset=".8" stop-color="#000" stop-opacity=".25"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient>
+<radialGradient id="inner" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#4a4658"/><stop offset="1" stop-color="#14121a"/></radialGradient>
+<linearGradient id="orange" x1="0" x2="1"><stop offset="0" stop-color="#9c520c"/><stop offset=".3" stop-color="#ffcb5e"/><stop offset=".6" stop-color="#e8901f"/><stop offset="1" stop-color="#7d3f08"/></linearGradient>
+<linearGradient id="steel" x1="0" x2="1"><stop offset="0" stop-color="#6c707a"/><stop offset=".35" stop-color="#f7f8fa"/><stop offset=".7" stop-color="#9094a0"/><stop offset="1" stop-color="#5d616b"/></linearGradient>
+<linearGradient id="wood" x1="0" x2="1"><stop offset="0" stop-color="#5a3314"/><stop offset=".4" stop-color="#d49a5c"/><stop offset="1" stop-color="#6e4120"/></linearGradient>
+<linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe8ee"/><stop offset=".5" stop-color="#2fb0b9"/><stop offset="1" stop-color="#14656c"/></linearGradient>
+<linearGradient id="pink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9bbf"/><stop offset=".5" stop-color="#e8306f"/><stop offset="1" stop-color="#8e1040"/></linearGradient>
+<linearGradient id="cam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eceef2"/><stop offset=".5" stop-color="#a9adb7"/><stop offset="1" stop-color="#6f737d"/></linearGradient>
+<radialGradient id="lens" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#7d9cff"/><stop offset=".35" stop-color="#2b3f9c"/><stop offset=".75" stop-color="#0c1033"/><stop offset="1" stop-color="#05060f"/></radialGradient>
+<radialGradient id="reel" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#c6c9d1"/><stop offset="1" stop-color="#7c808b"/></radialGradient>
+<linearGradient id="bag" x1="0" x2="1"><stop offset="0" stop-color="#cfd5e0" stop-opacity=".9"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#a9b1c2" stop-opacity=".9"/></linearGradient>
+</defs>
+
+<ellipse cx="300" cy="598" rx="140" ry="15" fill="#000" opacity=".35" filter="url(#soft)"/>
+<ellipse cx="300" cy="388" rx="105" ry="23" fill="url(#inner)"/>
+
+<g class="swirl" fill="none" stroke-linecap="round" filter="url(#sh)">
+<path d="M212 390q28-46 48-6t46-6 46 6 40-34" stroke="#1fb8aa" stroke-width="14"/>
+<path d="M225 396q30-34 52 0t46-6 46 6 25-24" stroke="#e8306f" stroke-width="12"/>
+<path d="M235 382q25-28 46-6t46-6 36 0" stroke="#ffb020" stroke-width="11"/>
+<path d="M250 374q20-22 40 0t40-6" stroke="#7bd957" stroke-width="9"/>
+<path d="M215 388q28-46 48-6" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
+</g>
+
+<g class="it" style="--d:1.15s;--r:0deg;--o:-60px"><path d="M214 336q-30-34 2-70 10-16 34-12 12 8 24 22l4 58z" fill="url(#bag)" stroke="#6c7385" stroke-width="2.5"/><path d="M224 300q-6 20 6 40" stroke="#fff" stroke-width="5" fill="none" opacity=".8"/><path d="M216 268q-22-10-12-26 12-8 26 8" fill="none" stroke="#7b8296" stroke-width="5"/><path d="M232 330q16 6 34-2l6 8q-24 10-42 0z" fill="#e8306f" opacity=".5"/></g>
+
+<g class="it" style="--d:1.2s;--r:-8deg;--o:-90px;--x:-20px"><rect x="262" y="212" width="62" height="96" rx="8" fill="url(#orange)" stroke="#3a2008" stroke-width="2.5"/><rect x="258" y="206" width="70" height="18" rx="4" fill="url(#steel)" stroke="#3a2008" stroke-width="2.5"/><rect x="258" y="296" width="70" height="14" rx="4" fill="url(#steel)" stroke="#3a2008" stroke-width="2.5"/><rect x="274" y="236" width="38" height="44" rx="3" fill="#fff4cf" opacity=".92"/><text x="293" y="264" font-size="15" text-anchor="middle" fill="#7a3b05" font-family="monospace" font-weight="700">888</text><path d="M324 212l16 10-2 70-14 6z" fill="#2a1c10"/></g>
+
+<g class="it" style="--d:1.35s;--r:10deg;--o:-120px;--x:10px"><path d="M346 150q-8 26-2 52l24-4q6-26-2-54z" fill="#2a9d95" stroke="#18312f" stroke-width="2.5"/><path d="M350 156q-4 18 0 36" stroke="#e8306f" stroke-width="5" fill="none"/><path d="M356 158q8 10 4 34" stroke="#ffb020" stroke-width="5" fill="none"/><path d="M344 202l26-5-3 26-24 5z" fill="url(#steel)" stroke="#3b3f48" stroke-width="2.5"/><path d="M345 222l22-5 6 100q2 12-8 14t-14-12z" fill="url(#wood)" stroke="#3a2008" stroke-width="2.5" transform="translate(-2 6)"/></g>
+
+<g class="it" style="--d:1.5s;--r:6deg;--o:-100px;--x:20px"><circle cx="440" cy="270" r="47" fill="url(#reel)" stroke="#2b2735" stroke-width="3.5"/><circle cx="440" cy="270" r="40" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><g fill="#1b1a22"><circle cx="440" cy="270" r="10"/><circle cx="440" cy="243" r="10"/><circle cx="440" cy="297" r="10"/><circle cx="413" cy="270" r="10"/><circle cx="467" cy="270" r="10"/></g><circle cx="440" cy="270" r="3.5" fill="#9a9ea9"/></g>
+
+<g class="it" style="--d:1.45s;--r:-52deg;--o:-90px;--x:30px"><path d="M358 292h74l12 4v22l-12 4h-74q-8-15 0-30z" fill="url(#cyan)" stroke="#0f3b3f" stroke-width="2.5"/><rect x="440" y="294" width="22" height="26" rx="3" fill="url(#steel)" stroke="#3b3f48" stroke-width="2.5"/><path d="M366 296h66" stroke="#fff" stroke-opacity=".6" stroke-width="3"/><text x="378" y="313" font-size="13" fill="#0b2c30" font-family="sans-serif" font-weight="700">Cian</text></g>
+
+<g class="it" style="--d:1.6s;--r:-32deg;--o:-80px;--x:30px"><path d="M372 338h76l12 4v22l-12 4h-76q-8-15 0-30z" fill="url(#pink)" stroke="#4a0a22" stroke-width="2.5"/><rect x="458" y="340" width="22" height="26" rx="3" fill="url(#steel)" stroke="#3b3f48" stroke-width="2.5"/><path d="M380 342h66" stroke="#fff" stroke-opacity=".6" stroke-width="3"/></g>
+
+<g class="it" style="--d:1.3s;--r:-4deg;--o:-70px"><rect x="236" y="316" width="128" height="82" rx="10" fill="url(#cam)" stroke="#2b2735" stroke-width="3"/><rect x="242" y="338" width="116" height="54" rx="6" fill="#26262c"/><rect x="236" y="316" width="128" height="22" rx="9" fill="#e9ebef" stroke="#2b2735" stroke-width="3"/><rect x="248" y="306" width="22" height="12" rx="3" fill="#8d919b" stroke="#2b2735" stroke-width="2"/><circle cx="342" cy="327" r="5" fill="#e83a3a"/><circle cx="300" cy="360" r="33" fill="url(#steel)" stroke="#2b2735" stroke-width="3"/><circle cx="300" cy="360" r="27" fill="url(#lens)" stroke="#05060f" stroke-width="3"/><circle cx="300" cy="360" r="14" fill="none" stroke="#6a7de0" stroke-opacity=".5" stroke-width="2"/><ellipse cx="290" cy="349" rx="9" ry="5" fill="#fff" opacity=".85" transform="rotate(-35 290 349)"/><circle cx="311" cy="372" r="3" fill="#ff8ab5" opacity=".7"/></g>
+
+<g id="can">
+<path d="M195 388Q300 432 405 388V548Q405 592 300 592T195 548Z" fill="url(#tin)" stroke="#3a3744" stroke-width="3"/>
+<path d="M195 388Q300 432 405 388V548Q405 592 300 592T195 548Z" fill="url(#rib)"/>
+<g fill="none"><path d="M197 428Q300 470 403 428" stroke="#fff" stroke-opacity=".75" stroke-width="3"/><path d="M197 433Q300 475 403 433" stroke="#000" stroke-opacity=".28" stroke-width="3"/>
+<path d="M197 464Q300 506 403 464" stroke="#fff" stroke-opacity=".75" stroke-width="3"/><path d="M197 469Q300 511 403 469" stroke="#000" stroke-opacity=".28" stroke-width="3"/>
+<path d="M197 500Q300 542 403 500" stroke="#fff" stroke-opacity=".75" stroke-width="3"/><path d="M197 505Q300 547 403 505" stroke="#000" stroke-opacity=".28" stroke-width="3"/>
+<path d="M197 534Q300 576 403 534" stroke="#fff" stroke-opacity=".6" stroke-width="3"/><path d="M197 539Q300 581 403 539" stroke="#000" stroke-opacity=".28" stroke-width="3"/></g>
+<path d="M195 388Q300 432 405 388" fill="none" stroke="#fff" stroke-width="5" stroke-opacity=".9"/>
+<path d="M195 388Q300 432 405 388" fill="none" stroke="#2a2733" stroke-width="2"/>
+<path d="M230 410v150" stroke="#fff" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/>
+<ellipse cx="300" cy="470" rx="70" ry="4" fill="#e8306f" opacity=".12"/>
+</g>
+
+<g id="lid"><ellipse cx="300" cy="388" rx="108" ry="25" fill="url(#steel)" stroke="#2b2735" stroke-width="3.5"/><ellipse cx="300" cy="388" rx="84" ry="17" fill="none" stroke="#2b2735" stroke-opacity=".5" stroke-width="2"/><ellipse cx="300" cy="386" rx="80" ry="15" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2"/><ellipse cx="272" cy="387" rx="28" ry="7" fill="#b7bbc5" stroke="#2b2735" stroke-width="2.5"/><circle cx="244" cy="386" r="10" fill="none" stroke="#868a95" stroke-width="4"/><circle cx="244" cy="386" r="10" fill="none" stroke="#2b2735" stroke-width="1.2"/></g>
+
+<g id="parts"></g>
+<text class="title" x="300" y="700" text-anchor="middle" fill="currentColor">Destapando el Arte</text>
+</svg>
+<button id="re">Repetir</button>
+</div>
+<div class="grain"></div>
+<script>
+var r=document.getElementById('root'),P=document.getElementById('parts'),NS='http://www.w3.org/2000/svg',raf,tm;
+var cols=['#e8306f','#1fb8aa','#ffb020','#6a4cff','#7bd957','#3aa0ff'];
+function spray(){
+  P.innerHTML='';var ps=[];
+  for(var i=0;i<46;i++){
+    var c=document.createElementNS(NS,'circle'),s=2+Math.random()*5;
+    c.setAttribute('r',s);c.setAttribute('fill',cols[i%6]);c.setAttribute('opacity',0);P.appendChild(c);
+    var a=-Math.PI/2+(Math.random()-.5)*1.5,v=9+Math.random()*10;
+    ps.push({c:c,x:230+Math.random()*140,y:386,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,e:Math.random()*.4});
+  }
+  var t0=performance.now();
+  (function f(t){
+    var d=(t-t0)/1000,alive=false;
+    ps.forEach(function(p){
+      if(d<1.2+p.e){alive=true;return}
+      if(p.l<=0)return;alive=true;
+      p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.l-=.012;
+      p.c.setAttribute('cx',p.x);p.c.setAttribute('cy',p.y);p.c.setAttribute('opacity',Math.max(p.l,0));
+    });
+    if(alive)raf=requestAnimationFrame(f);
+  })(t0);
+}
+function go(){
+  cancelAnimationFrame(raf);r.classList.remove('play');void r.offsetWidth;r.classList.add('play');spray();
+}
+document.getElementById('re').onclick=go;
+r.onclick=function(e){if(e.target.tagName!=='BUTTON')go()};
+go();
+</script>
+</body></html>
