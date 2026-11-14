@@ -99,6 +99,7 @@ export interface City {
   name: string
   position: number
   image_url: string | null // Commons file page (ADR-0008); null = monogram placeholder
+  story: string | null // one editorial paragraph (ADR-0024); null = no story section
   created_at: string
 }
 

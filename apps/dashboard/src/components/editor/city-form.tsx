@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
 const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
 
@@ -76,6 +77,22 @@ export function CityForm({ city }: { city: City }) {
               defaultValue={city.image_url ?? ''}
               placeholder="https://commons.wikimedia.org/wiki/File:…"
             />
+          </div>
+          <div className="space-y-1.5">
+            <Label className={caption} htmlFor="city-story">
+              Historia — un párrafo breve (opcional)
+            </Label>
+            <Textarea
+              id="city-story"
+              name="story"
+              rows={4}
+              defaultValue={city.story ?? ''}
+              placeholder={`Ej.: ${city.name} guarda secretos en cada rincón y es un epicentro artístico mundial…`}
+            />
+            <p className="text-xs text-muted-foreground">
+              Voz narrativa, sin datos inventados. Vacío = la app no muestra
+              ninguna sección de historia.
+            </p>
           </div>
           <Button type="submit">Guardar ciudad</Button>
         </form>

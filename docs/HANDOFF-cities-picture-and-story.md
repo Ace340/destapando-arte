@@ -42,16 +42,11 @@ Created: 2026-11-13, right after the city `image_url` column landed
    Commons links via the Tablero (live in the LOCAL DB; see the data-sync
    note above — the remote will not show them until data is synced or
    re-entered).
-2. **Build — `cities.story text` (nullable, one short paragraph):**
-   - Migration (new dated file, same comment style: honest-stub rule — null
-     means NO story section renders, never a placeholder box).
-   - Both `types.ts` copies in the same commit (no-drift contract).
-   - Tablero: `CityForm` textarea + `saveCity` patch (plain text, no URL
-     validation needed; Spanish copy around it).
-   - Mobile `ciudad/[slug].tsx`: render the story between the hero and
-     «Obras aquí» — reuse `StorySection`/`BodyText` (same rhythm as the obra
-     pages). Page order: brand → name → hero → historia → Obras aquí →
-     Lugares.
+2. **Build — `cities.story text` (nullable, one short paragraph): DONE
+   2026-11-14** — migration 20261114120000_city_story.sql (applied to the
+   LOCAL stack), both types.ts copies, Tablero CityForm textarea +
+   saveCity patch, mobile «Historia» section between the hero and
+   «Obras aquí» (StorySection/BodyText; null renders no section).
 3. **Editorial — story copy:** one brief paragraph per city, written in the
    Tablero after the build lands. Honesty constraints apply (ADR-0007/0014
    spirit): narrative voice, no invented facts, no unverified links.

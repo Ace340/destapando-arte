@@ -85,6 +85,14 @@ export default function Ciudad() {
         style={styles.hero}
       />
 
+      {/* The city story (ADR-0024): one hand-written editorial paragraph from
+          the Tablero. Null is the honest stub — no section renders at all. */}
+      {city.story ? (
+        <StorySection title="Historia">
+          <BodyText>{city.story}</BodyText>
+        </StorySection>
+      ) : null}
+
       <StorySection title="Obras aquí">
         {obras.length > 0 ? (
           obras.map((obra, index) => (
