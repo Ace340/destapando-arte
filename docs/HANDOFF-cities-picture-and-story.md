@@ -18,8 +18,13 @@ Created: 2026-11-13, right after the city `image_url` column landed
 
 - `cities.image_url text` (nullable) exists — migration 20261113120000,
   applied to the LOCAL stack (`supabase migration up`); both seeded cities
-  are NULL. **PENDING: `supabase db push`** to remote (needs `supabase login`
-  + `link`).
+  are NULL there. **DONE 2026-11-14: `supabase db push` applied ALL 7
+  migrations to the remote project** (`bzzavpaqsrpuuyolxhbx`, org
+  «destapando-arte», West US) — `migration list` verified local/remote in
+  sync. Schema only, by decision: **remote tables are EMPTY** — seeds,
+  story-loads, and the two city picture links (entered via the Tablero
+  against the local stack) did NOT travel. Data sync is an explicit future
+  decision before any app points at the cloud.
 - Tablero `saveCity` validates the Commons file-page shape at the boundary
   (same `previewUrl` regex as `saveImage`): only
   `https://commons.wikimedia.org/wiki/File:…` passes; empty field clears.
@@ -33,11 +38,10 @@ Created: 2026-11-13, right after the city `image_url` column landed
 
 ## To build next session
 
-1. **Editorial — pictures (no code):** pick one public-domain Commons image
-   per city (vintage views: Nueva York, Ciudad de México). In the Tablero →
-   Ciudades → editar → paste the **file page** URL
-   (`https://commons.wikimedia.org/wiki/File:…`) → Guardar ciudad. Verify the
-   preview and the app surfaces (thumb + hero) render it.
+1. **Editorial — pictures (no code): DONE 2026-11-14** — Patrick added the
+   Commons links via the Tablero (live in the LOCAL DB; see the data-sync
+   note above — the remote will not show them until data is synced or
+   re-entered).
 2. **Build — `cities.story text` (nullable, one short paragraph):**
    - Migration (new dated file, same comment style: honest-stub rule — null
      means NO story section renders, never a placeholder box).
