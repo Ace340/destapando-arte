@@ -9,8 +9,8 @@ import type { City, CityPlace } from './types'
 // catalog: RLS hides nothing here (public-read policies), and obras are
 // derived from published artworks, never hand-typed.
 
-// A city plus the ids of its hand-curated Lugares — the count feeds the
-// list row's secondary line.
+// A city plus the ids of its hand-curated Lugares — fetched in the same
+// query so the tab reads one shape; the wall cards show the name only.
 export interface CityListRow extends City {
   city_places: Pick<CityPlace, 'id'>[] | null
 }
@@ -22,12 +22,6 @@ export interface CityBundle {
 
 export interface CityPageData extends CityBundle {
   obras: CatalogRow[]
-}
-
-// Pure: lugar count for the list row — mirrors publishedCount in
-// lib/artists.ts (client-side count over a minimal embed).
-export function lugarCount(city: CityListRow): number {
-  return city.city_places?.length ?? 0
 }
 
 // The Ciudades tab: every created city, in the editor's hand order.
