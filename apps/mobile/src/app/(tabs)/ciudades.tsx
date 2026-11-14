@@ -17,10 +17,13 @@ import { useAsync } from '@/lib/use-async'
 
 export default function Ciudades() {
   const theme = useTheme()
-  const fetchCities = useCallback(() => (isConfigured() ? listCities() : null), [])
+  // One configured check per render: guards both the fetch (listCities needs
+  // a configured client) and the early return below.
+  const configured = isConfigured()
+  const fetchCities = useCallback(() => (configured ? listCities() : null), [configured])
   const state = useAsync<CityListRow[]>(fetchCities)
 
-  if (!isConfigured()) return <SetupNotice />
+  if (!configured) return <SetupNotice />
 
   return (
     <SectionScreen subtitle="Ciudades">

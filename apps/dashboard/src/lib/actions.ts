@@ -62,6 +62,32 @@ export async function advance(formData: FormData): Promise<void> {
   revalidate(slug)
 }
 
+// Next free slot: max + 1. count+1 would collide with the gaps the remove
+// actions leave behind (unique(*, position) rejects it). The optional filter
+// scopes the max to one parent (artwork, city).
+async function nextSlot(
+  table: 'curiosities' | 'cities' | 'city_places',
+  filterColumn?: string,
+  filterValue?: string,
+): Promise<number> {
+  const { data: last } =
+    filterColumn && filterValue
+      ? await db()
+          .from(table)
+          .select('position')
+          .eq(filterColumn, filterValue)
+          .order('position', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : await db()
+          .from(table)
+          .select('position')
+          .order('position', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+  return (last?.position ?? 0) + 1
+}
+
 export async function createCuriosity(formData: FormData): Promise<void> {
   const artworkId = text(formData, 'artwork_id')
   const slug = text(formData, 'slug')
@@ -72,19 +98,9 @@ export async function createCuriosity(formData: FormData): Promise<void> {
     throw new Error('ADR-0007: la curiosidad necesita texto y fuente.')
   }
 
-  // Next free slot: max + 1. count+1 would collide with the gaps that
-  // removeCuriosity leaves behind (unique(artwork_id, position) rejects it).
-  const { data: last } = await db()
-    .from('curiosities')
-    .select('position')
-    .eq('artwork_id', artworkId)
-    .order('position', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
   const { error } = await db().from('curiosities').insert({
     artwork_id: artworkId,
-    position: (last?.position ?? 0) + 1,
+    position: await nextSlot('curiosities', 'artwork_id', artworkId),
     title: text(formData, 'title') || null,
     text: body,
     type: text(formData, 'type') as CuriosityType,
@@ -339,6 +355,30 @@ export async function saveCity(formData: FormData): Promise<void> {
     // keeps its value when the field comes back empty; an emptied picture
     // clears the link (null → the app shows the monogram placeholder); an
     // emptied story clears the paragraph (null → no story section renders).
+    // The city↔instance link is by NAME (ADR-0024) — a rename would orphan
+    // the derived «Obras aquí» with no guard. Same rule as saveArtist's
+    // stale Sello pointer: fail the save with the count so the editor
+    // resolves the coupling instead of silently losing the obras.
+    const { data: current, error: currentError } = await db()
+      .from('cities')
+      .select('name')
+      .eq('slug', slug)
+      .maybeSingle()
+    if (currentError) throw new Error(`Guardar ciudad: ${currentError.message}`)
+    if (current && current.name !== name) {
+      const { count, error: linkError } = await db()
+        .from('physical_instances')
+        .select('id', { count: 'exact', head: true })
+        .eq('city', current.name)
+      if (linkError) throw new Error(`Guardar ciudad: ${linkError.message}`)
+      if ((count ?? 0) > 0) {
+        throw new Error(
+          `Guardar ciudad: «${current.name}» tiene ${count} ${
+            count === 1 ? 'obra enlazada' : 'obras enlazadas'
+          } por nombre — renombrar rompería «Obras aquí». Actualiza las instancias primero o mantén el nombre.`,
+        )
+      }
+    }
     const patch: {
       name: string
       position?: number
@@ -373,19 +413,12 @@ export async function saveCity(formData: FormData): Promise<void> {
     )
   }
 
-  // Next free slot: max + 1 — a hand order stays gap-free (no unique
-  // constraint on cities.position, but consistency is cheap).
-  const { data: last } = await db()
-    .from('cities')
-    .select('position')
-    .order('position', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
   const { error } = await db().from('cities').insert({
     slug: newSlug,
     name,
-    position: Number.isNaN(position) ? (last?.position ?? 0) + 1 : position,
+    // Next free slot: max + 1 — a hand order stays gap-free (no unique
+    // constraint on cities.position, but consistency is cheap).
+    position: Number.isNaN(position) ? await nextSlot('cities') : position,
     image_url: imageUrl || null,
     story: story || null,
   })
@@ -403,7 +436,7 @@ export async function savePlace(formData: FormData): Promise<void> {
   if (!cityId) throw new Error('Lugar: falta la ciudad.')
   if (!name) throw new Error('El lugar necesita nombre.')
   // ADR-0014: links are opt-in and verified — never a bare domain.
-  if (url && !/^https?:\/\//i.test(url)) {
+  if (url && !/^https:\/\//i.test(url)) {
     throw new Error('La URL del lugar debe empezar por https:// — o déjala vacía.')
   }
 
@@ -422,20 +455,10 @@ export async function savePlace(formData: FormData): Promise<void> {
     const { error } = await db().from('city_places').update(patch).eq('id', placeId)
     if (error) throw new Error(`Lugar: ${error.message}`)
   } else {
-    // Next free slot: max + 1 — same gap logic as createCuriosity. A
-    // hand-taken number that collides hits unique(city_id, position) and its
-    // error surfaces here; the Lugares form explains this in the Tablero.
-    let slot = position
-    if (Number.isNaN(slot)) {
-      const { data: last } = await db()
-        .from('city_places')
-        .select('position')
-        .eq('city_id', cityId)
-        .order('position', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      slot = (last?.position ?? 0) + 1
-    }
+    // A hand-taken position that collides hits unique(city_id, position)
+    // and its error surfaces here; the Lugares form explains this in the
+    // Tablero.
+    const slot = Number.isNaN(position) ? await nextSlot('city_places', 'city_id', cityId) : position
     const { error } = await db().from('city_places').insert({
       city_id: cityId,
       name,

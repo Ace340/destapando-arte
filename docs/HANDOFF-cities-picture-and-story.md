@@ -32,8 +32,16 @@ Created: 2026-11-13, right after the city `image_url` column landed
   via Special:FilePath; shows the «sin imagen» note while empty.
 - Mobile: `city-image.tsx` renders the linked Commons image (Special:FilePath
   thumb) or the honest placeholder — neutral-gradient tile with the city's
-  initial (Sello monogram model, no palette). 48px round thumb in the Ciudades
-  list row; 168px hero on the Ciudad page under the name.
+  initial (Sello monogram model, no palette). Ciudades list: full-width
+  wall cards since commit bb0478b (the Descubre model at half art height —
+  the rows with the 48px thumb are gone); 168px hero on the Ciudad page
+  under the name.
+- Seed notes honesty pass (2026-11-14): `story-loads/ciudades.sql` ships
+  only catalog-derived notes («Aquí cuelga …, del catálogo»); every other
+  place note is NULL — no unsourced facts (ADR-0007/0014, ADR-0024 rejected
+  city facts). Existing LOCAL rows keep their older notes; re-edit them in
+  the Tablero if they bother you (the seed's not-exists guard never updates
+  existing rows).
 - Both `types.ts` copies carry `image_url` (no-drift contract respected).
 
 ## To build next session

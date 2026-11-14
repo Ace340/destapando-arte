@@ -2,6 +2,9 @@
 -- Idempotent: not-exists guards per city slug and per (city_id, place name).
 -- place url ships NULL — added later via the Tablero editor, only when
 -- verified live (ADR-0014: no claim rests on a link we don't control).
+-- place note follows the same honesty bar (ADR-0007/0014, ADR-0024 rejected
+-- city facts): only catalog-derived claims ship («Aquí cuelga …, del
+-- catálogo»); every other note stays NULL — the name speaks for itself.
 --
 -- Load (NEVER pipe UTF-8 SQL through PowerShell — CANON ops lesson):
 --   docker cp supabase/story-loads/ciudades.sql <db-container>:/tmp/ciudades.sql
@@ -22,9 +25,9 @@ from cities c
 join (
   values
     ('Museum of Modern Art (MoMA)', 'Aquí cuelga La noche estrellada, del catálogo.', 1),
-    ('The Metropolitan Museum of Art', 'El Met: cinco mil años de arte, de Velázquez a Van Gogh.', 2),
-    ('Solomon R. Guggenheim Museum', 'La rotonda de Frank Lloyd Wright, en Museum Mile.', 3),
-    ('The Frick Collection', 'Mansión-museo del Upper East Side: Fragonard, Vermeer, Rembrandt.', 4)
+    ('The Metropolitan Museum of Art', null, 2),
+    ('Solomon R. Guggenheim Museum', null, 3),
+    ('The Frick Collection', null, 4)
 ) as p(name, note, position) on true
 where c.slug = 'nueva-york'
   and not exists (
@@ -38,10 +41,10 @@ select c.id, p.name, p.note, null, p.position
 from cities c
 join (
   values
-    ('Museo de Arte Moderno (INBAL)', 'Aquí cuelgan Las dos Fridas, del catálogo. Bosque de Chapultepec.', 1),
-    ('Museo Frida Kahlo (Casa Azul)', 'La casa azul de Coyoacán donde nació y murió Frida.', 2),
-    ('Museo Nacional de Arte (Munal)', 'Arte mexicano del virreinato al modernismo, junto al Zócalo.', 3),
-    ('Palacio de Bellas Artes', 'Murales de Rivera, Siqueiros y Orozco; teatro y museo a la vez.', 4)
+    ('Museo de Arte Moderno (INBAL)', 'Aquí cuelgan Las dos Fridas, del catálogo.', 1),
+    ('Museo Frida Kahlo (Casa Azul)', null, 2),
+    ('Museo Nacional de Arte (Munal)', null, 3),
+    ('Palacio de Bellas Artes', null, 4)
 ) as p(name, note, position) on true
 where c.slug = 'ciudad-de-mexico'
   and not exists (
