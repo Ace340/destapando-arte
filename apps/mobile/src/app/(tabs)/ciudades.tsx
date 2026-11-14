@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native'
 
-import { CityRowItem, CitySeparator } from '@/components/city-row'
+import { CityCard } from '@/components/city-card'
 import { SectionEmpty, SectionScreen } from '@/components/section-screen'
 import { SetupNotice } from '@/components/setup-notice'
 import { listCities, type CityListRow } from '@/lib/cities'
@@ -11,8 +11,9 @@ import { useAsync } from '@/lib/use-async'
 
 // GLOSSARY Ciudades (section) / ADR-0024: hand-created editorial entities —
 // the Tablero creates them and creation is the listing gate (no draft
-// state, no derived threshold). Row rendering lives in src/components
-// (AGENTS.md) — same module-scope separator rule as the catalog.
+// state, no derived threshold). Card rendering lives in src/components
+// (AGENTS.md) — the Descubre wall's shape (ADR-0020) at half the art
+// height, so no separators: the caption padding sets the rhythm.
 
 export default function Ciudades() {
   const theme = useTheme()
@@ -32,8 +33,7 @@ export default function Ciudades() {
           <FlatList
             data={state.data}
             keyExtractor={(city) => city.id}
-            ItemSeparatorComponent={CitySeparator}
-            renderItem={({ item }) => <CityRowItem city={item} />}
+            renderItem={({ item }) => <CityCard city={item} />}
             contentContainerStyle={styles.list}
           />
         ) : (
