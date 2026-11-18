@@ -82,10 +82,6 @@ export interface ArtistBundle {
   obras: CatalogRow[]
 }
 
-export function publishedCount(artist: ArtistListRow): number {
-  return (artist.artworks ?? []).filter((obra) => obra.story_status === 'published').length
-}
-
 export async function listArtists(): Promise<ArtistListRow[]> {
   const response = await supabaseClient()
     .from('artists')

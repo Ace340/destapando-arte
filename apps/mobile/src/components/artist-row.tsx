@@ -2,7 +2,7 @@ import { Link } from 'expo-router'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { Sello } from '@/components/sello'
-import { artistInitials, publishedCount, resolveSello, yearsLabel, type ArtistListRow } from '@/lib/artists'
+import { artistInitials, resolveSello, type ArtistListRow } from '@/lib/artists'
 import { useTheme } from '@/lib/theme'
 
 // Artist list row (ADR-0022) + the list separator, extracted from the
@@ -12,9 +12,6 @@ import { useTheme } from '@/lib/theme'
 
 export function ArtistRowItem({ artist }: { artist: ArtistListRow }) {
   const theme = useTheme()
-  const count = publishedCount(artist)
-  const years = yearsLabel(artist)
-  const meta = [years, `${count} ${count === 1 ? 'obra' : 'obras'}`].filter(Boolean).join(' · ')
   const sello = resolveSello(artist.artworks, artist.sello_artwork_id)
 
   return (
@@ -26,11 +23,7 @@ export function ArtistRowItem({ artist }: { artist: ArtistListRow }) {
           initials={artistInitials(artist.name)}
           recyclingKey={artist.id}
         />
-        <View style={styles.rowText}>
-          <Text style={[styles.name, { color: theme.text }]}>{artist.name}</Text>
-          {meta ? <Text style={[styles.meta, { color: theme.muted }]}>{meta}</Text> : null}
-        </View>
-        <Text style={[styles.chevron, { color: theme.faint }]}>›</Text>
+        <Text style={[styles.name, { color: theme.text }]}>{artist.name}</Text>
       </Pressable>
     </Link>
   )
@@ -45,27 +38,17 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingTop: 14,
+    paddingBottom: 32,
     gap: 12,
   },
   rowPressed: {
     opacity: 0.6,
   },
-  rowText: {
-    flex: 1,
-    gap: 2,
-  },
   name: {
+    flex: 1,
     fontFamily: 'Fraunces_600SemiBold',
     fontSize: 17,
-  },
-  meta: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-  },
-  chevron: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 20,
   },
   separator: {
     height: 1,
