@@ -26,7 +26,8 @@ export interface SelloSource {
   palette: readonly string[]
 }
 
-// Small request width — the Sello renders at 44–64px.
+// Request width for the circular Sello (44–64px). The Artistas wall card
+// passes its own, card-sized width — resolveSello's third argument.
 const SELLO_WIDTH = 160
 
 // Pure: the Sello source (GLOSSARY, ADR-0023 as amended 2026-11-06). The
@@ -41,6 +42,7 @@ const SELLO_WIDTH = 160
 export function resolveSello(
   obras: readonly SelloObra[] | null | undefined,
   selloArtworkId?: string | null,
+  width = SELLO_WIDTH,
 ): SelloSource {
   const published = (obras ?? [])
     .filter((obra) => obra.story_status === 'published')
@@ -54,7 +56,7 @@ export function resolveSello(
   const target = pointed ?? withDisplay[0]
   if (target) {
     const display = displayOf(target)
-    return { imageUrl: display ? displayUrl(display.source_url, SELLO_WIDTH) : null, palette: target.palette }
+    return { imageUrl: display ? displayUrl(display.source_url, width) : null, palette: target.palette }
   }
   const first = published[0]
   return { imageUrl: null, palette: first?.palette ?? [] }
