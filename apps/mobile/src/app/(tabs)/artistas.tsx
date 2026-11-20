@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native'
 
-import { ArtistRowItem, ArtistSeparator } from '@/components/artist-row'
+import { ArtistCard } from '@/components/artist-card'
 import { SectionScreen } from '@/components/section-screen'
 import { SetupNotice } from '@/components/setup-notice'
 import { listArtists, type ArtistListRow } from '@/lib/artists'
@@ -10,8 +10,9 @@ import { useTheme } from '@/lib/theme'
 import { useAsync } from '@/lib/use-async'
 
 // GLOSSARY Artistas (section) / ADR-0022: only artists with at least one
-// published obra. Row rendering lives in src/components (AGENTS.md) — same
-// module-scope separator rule as the catalog (stable type for FlatList).
+// published obra. Card rendering lives in src/components (AGENTS.md) — the
+// Ciudades wall's shape (ADR-0023 amendment), so no separators: the caption
+// padding sets the rhythm.
 
 export default function Artistas() {
   const theme = useTheme()
@@ -30,8 +31,7 @@ export default function Artistas() {
         <FlatList
           data={state.data}
           keyExtractor={(artist) => artist.id}
-          ItemSeparatorComponent={ArtistSeparator}
-          renderItem={({ item }) => <ArtistRowItem artist={item} />}
+          renderItem={({ item }) => <ArtistCard artist={item} />}
           contentContainerStyle={styles.list}
         />
       ) : null}
