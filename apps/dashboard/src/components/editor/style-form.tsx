@@ -9,10 +9,10 @@ import {
 } from '@/components/ui/card'
 
 // ADR-0025: one obra, one style — the dominant one, or nothing until the
-// editor sets it. StylePicker (the server shell around it) owns the grouped
-// select, the description help line and the save confirmation; empty keeps
-// the work unclassified, where the dev-time «Sin clasificar» chip in the
-// app's Estilos strip shows it.
+// editor sets it. StyleForm is the server shell; StylePicker (the client
+// island inside the card) owns the grouped select, the description help
+// line and the save confirmation; empty keeps the work unclassified, where
+// the dev-time «Sin clasificar» chip in the app's Estilos strip shows it.
 export function StyleForm({ artwork, styles }: { artwork: Artwork; styles: Style[] }) {
   return (
     <Card>

@@ -1,7 +1,7 @@
 import { supabaseClient } from './supabase'
 import { displayUrl } from './image-url'
 import { unwrap } from './unwrap'
-import type { CatalogRow } from './artworks'
+import { CATALOG_SELECT, type CatalogRow } from './artworks'
 import type { Style } from './types'
 
 // El Estilo (GLOSSARY, ADR-0025): the art-style taxonomy, read through the
@@ -13,11 +13,6 @@ import type { Style } from './types'
 // not a styles row — this pseudo-slug retires when published-obras style
 // coverage is complete. A placeholder, not a permanent type.
 export const SIN_CLASIFICAR = 'sin-clasificar'
-
-// The artwork embed the CatalogRow needs — identical shape to
-// lib/artworks' list select.
-const EMBED =
-  '*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)'
 
 // The strip chip (ADR-0025): the style plus its representative obra, the
 // ADR-0023 derivation — the style's first published obra with a display
@@ -67,18 +62,25 @@ export interface StyleBundle {
   obras: CatalogRow[]
 }
 
+// The published-obras fetch both bundle() branches share — the select is
+// the CatalogRow contract from lib/artworks (one shape, one source); null
+// style_id is the «Sin clasificar» set.
+async function publishedObras(styleId: string | null, context: string): Promise<CatalogRow[]> {
+  const query = supabaseClient()
+    .from('artworks')
+    .select(CATALOG_SELECT)
+    .eq('story_status', 'published')
+    .order('title_es')
+  const response = styleId === null ? await query.is('style_id', null) : await query.eq('style_id', styleId)
+  return unwrap<CatalogRow[]>(response, context) ?? []
+}
+
 // The browse-list bundle: the style (or the sin-clasificar pseudo-route)
 // plus its published obras in title order. The strip chip tap lands here
 // (single-select, ADR-0025).
 export async function bundle(slug: string): Promise<StyleBundle | null> {
   if (slug === SIN_CLASIFICAR) {
-    const response = await supabaseClient()
-      .from('artworks')
-      .select(EMBED)
-      .eq('story_status', 'published')
-      .is('style_id', null)
-      .order('title_es')
-    return { style: null, obras: unwrap<CatalogRow[]>(response, 'Sin clasificar') ?? [] }
+    return { style: null, obras: await publishedObras(null, 'Sin clasificar') }
   }
 
   const response = await supabaseClient()
@@ -89,11 +91,5 @@ export async function bundle(slug: string): Promise<StyleBundle | null> {
   const style = unwrap<Style>(response, `Estilo ${slug}`)
   if (!style) return null
 
-  const obrasResponse = await supabaseClient()
-    .from('artworks')
-    .select(EMBED)
-    .eq('story_status', 'published')
-    .eq('style_id', style.id)
-    .order('title_es')
-  return { style, obras: unwrap<CatalogRow[]>(obrasResponse, 'Obras') ?? [] }
+  return { style, obras: await publishedObras(style.id, 'Obras') }
 }

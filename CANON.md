@@ -329,3 +329,18 @@ Grill session (grill-with-docs + domain-modeling) → decisions on disk: **ADR-0
 1. Classify the published obras in the Tablero's Estilo dropdown (the write path needs the convention click-test; the strip's chips stay gradient-only until obras carry styles).
 2. Mobile Expo Go smoke: strip after the third card, chip tap → browse list → obra round-trip, «Sin clasificar» honest empty state.
 3. Carried queues unchanged: kickoff queue (Avísame server route, obra del día, push sender, EAS + Play internal track), why_special ×5, Avísame click-test, frame-analysis passes, Mauritshuis/Prado re-verification, push slot collision (ADR-0018), external ledger.
+
+## Two-axis review session (2026-11-26) — style-feature reviewed, five fixes landed
+
+Standard two-axis review (Standards + Spec, parallel sub-agents) of the whole branch (`ab7dd33...HEAD`, fdf7c24→6d69af3). Standards axis: **0 hard violations** — no-drift types, ADR-0009 Spanish copy, never-fabricate NULL Q-ids, pure-taxonomy derived views, and dead-code hygiene all verified; 5 judgement calls. Spec axis: 4 findings — one real breakage, one scope item, one disclosed cross-effect, one ADR-vs-code divergence. Patrick approved all five fixes.
+
+**The fixes (this commit's content):**
+- **Story-loads follow the rename (the breakage)**: the nine `supabase/story-loads/*.sql` `film_connections` INSERT column lists renamed `movement_id` → `style_id` (all `movement_id` values were `null`, behavior unchanged; any re-run after `20261126120000_estilos.sql` previously failed on the dropped column). Lesson: the migration's "zero legacy tables" check covered tables, not the story-load scripts.
+- **ADR-0025 second addendum**: ¶3's chip fallback amended to the shipped code — bare palette gradient, **no monogram** when a style has no representative obra (a monogram would lie about art that isn't there — the ADR-0008 honesty model); `styles.wikidata_id` accepted on record for import provenance (nullable, NULL until a verified Q-id, no consumer yet). Reconciles both axes' findings without new product decisions.
+- **`style-form.tsx` comment un-inverted**: StyleForm is the server shell, StylePicker the client island inside the card.
+- **Mobile dedup**: `CATALOG_SELECT` exported from `lib/artworks.ts` as the one CatalogRow-shaped select source; `bundle()`'s two branches share one `publishedObras()` helper (the EMBED const and its doubled select are gone).
+- **`saveStyle` Spanish FK error**: non-empty style ids are boundary-validated against `styles` (saveArtist/saveCity pattern) with a full Spanish error; the schema FK stays as the forged-post backstop.
+
+Deliberately not changed: the Spanish `estilos` identifier in `/cuadro/[slug]` (route-level Spanish naming is deliberate per ADR-0009 practice), and the NativeSelect dark-mode fix's effect on StatusStepper's select (disclosed in commit d518e91, a bonus fix on an existing surface).
+
+Validation: dashboard eslint + tsc + `next build` green (exit 0, all 9 routes); mobile expo lint + tsc green. Next steps: the Estilos-session queue above unchanged (classify obras in the Tablero, Expo Go smoke). Standing reminder: `docs/agents/issue-tracker.md` still missing — `setup-matt-pocock-skills` item.
