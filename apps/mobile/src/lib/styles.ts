@@ -83,7 +83,7 @@ export async function bundle(slug: string): Promise<StyleBundle | null> {
 
   const response = await supabaseClient()
     .from('styles')
-    .select('id, slug, name, wikidata_id')
+    .select('id, slug, name, description, wikidata_id')
     .eq('slug', slug)
     .maybeSingle()
   const style = unwrap<Style>(response, `Estilo ${slug}`)

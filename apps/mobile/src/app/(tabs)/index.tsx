@@ -42,7 +42,7 @@ export default function Catalogo() {
       const chips: StyleChipRow[] = [
         ...styleChips,
         // ADR-0025: placeholder, not a style row; retires at full coverage.
-        { id: SIN_CLASIFICAR, slug: SIN_CLASIFICAR, name: 'Sin clasificar', wikidata_id: null, representative: null },
+        { id: SIN_CLASIFICAR, slug: SIN_CLASIFICAR, name: 'Sin clasificar', description: null, wikidata_id: null, representative: null },
       ]
       const items: WallItem[] = wall
         .slice(0, STRIP_POSITION)

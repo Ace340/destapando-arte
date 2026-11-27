@@ -77,6 +77,7 @@ export interface Style {
   id: string
   slug: string
   name: string
+  description: string | null
   wikidata_id: string | null
 }
 
