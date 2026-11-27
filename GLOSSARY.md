@@ -73,7 +73,7 @@ The optional short narrative on an Artist page — a compact biography beneath t
 _Avoid_: full artist Story, vida
 
 **Lesson**:
-The v2 deep-dive unit on an Artist's or Movement's language, with diagrams. The premium tier.
+The v2 deep-dive unit on an Artist's or Estilo's language, with diagrams. The premium tier.
 
 **Artist**:
 An aggregation page — member Stories, connections, museums — plus its why_special and optional Bio. The fallback destination when a work isn't in the Catalog.
@@ -89,8 +89,9 @@ The browse list of artists with at least one published obra. Artists with none k
 The artist mark — the artist's published Obra chosen as their emblem in the Tablero (honored when it carries a display image), else the alphabetically first obra with a display image; a monogram on palette gradient when neither yields one. Shows their art, never their face. Circular on the Artist page header; the full-width wall card on the Artistas list (ADR-0023 amendment, 2026-11-20).
 _Avoid_: portrait, profile picture, avatar, foto
 
-**Movement**:
-Pure taxonomy in v1: grouping and routing only, no editorial surface.
+**Estilo**:
+The art-style taxonomy in the user's words (Impresionismo, Realismo, Arte abstracto): Artists carry many, each Artwork claims one. Grouping and routing only, no editorial surface — the Estilos strip on Descubre (third card onward) and a style's browse list are derived views, nothing to write.
+_Avoid_: movement, genre, tag
 
 ## El Reconocimiento y la Demanda
 
@@ -120,7 +121,7 @@ A reusable cinema entity (title, year, director). Recurs across connections and 
 _Avoid_: movie
 
 **Film connection**:
-The claim that a Film borrowed an Artwork's, Artist's, or Movement's language — what it borrowed, the mechanism, the evidence. The moat.
+The claim that a Film borrowed an Artwork's, Artist's, or Estilo's language — what it borrowed, the mechanism, the evidence. The moat.
 _Avoid_: homage, reference, easter egg
 
 **Frame analysis**:

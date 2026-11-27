@@ -40,10 +40,15 @@ export function heroCredit(artwork: CatalogRow): string | null {
   return displayAsset(artwork)?.credit ?? null
 }
 
+// The select every CatalogRow-shaped query mirrors — export so sibling
+// modules (lib/styles.ts) reuse it instead of re-spelling the embed.
+export const CATALOG_SELECT =
+  '*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)'
+
 export async function list(): Promise<CatalogRow[]> {
   const response = await supabaseClient()
     .from('artworks')
-    .select('*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)')
+    .select(CATALOG_SELECT)
     .eq('story_status', 'published')
     .order('title_es')
   return unwrap<CatalogRow[]>(response, 'Catálogo') ?? []
@@ -52,7 +57,7 @@ export async function list(): Promise<CatalogRow[]> {
 export async function get(slug: string): Promise<StoryBundle | null> {
   const response = await supabaseClient()
     .from('artworks')
-    .select('*, artists!artworks_artist_id_fkey(slug, name), image_assets(kind, source_url, credit)')
+    .select(CATALOG_SELECT)
     .eq('slug', slug)
     .eq('story_status', 'published')
     .maybeSingle()

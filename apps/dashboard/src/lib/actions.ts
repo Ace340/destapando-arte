@@ -41,6 +41,42 @@ export async function saveBeats(formData: FormData): Promise<void> {
   revalidate(slug)
 }
 
+// ADR-0025: the per-obra classification, set by hand like every editorial
+// claim. Null clears the link («Sin clasificar»). Non-empty ids are
+// validated at the boundary so a stale select reads a Spanish error; the
+// schema's FK stays as the backstop (its English body only surfaces for
+// forged posts).
+export async function saveStyle(formData: FormData): Promise<void> {
+  const slug = text(formData, 'slug')
+  const styleId = text(formData, 'style_id') || null
+  if (styleId) {
+    const { count, error } = await db()
+      .from('styles')
+      .select('id', { count: 'exact', head: true })
+      .eq('id', styleId)
+    if (error) throw new Error(`Guardar estilo: ${error.message}`)
+    if ((count ?? 0) === 0) {
+      throw new Error(
+        'Guardar estilo: ese estilo no está en el vocabulario — recarga la página o elige otro.',
+      )
+    }
+  }
+  const { error } = await db()
+    .from('artworks')
+    .update({ style_id: styleId })
+    .eq('slug', slug)
+  if (error) throw new Error(`Guardar estilo: ${error.message}`)
+  revalidate(slug)
+}
+
+// Same write, state-flavored for the Estilo picker's client island
+// (useActionState needs the prevState-forwarding signature — see the Forms
+// guide). Errors still throw; the boolean just drives the saved message.
+export async function saveStyleState(_prev: boolean, formData: FormData): Promise<boolean> {
+  await saveStyle(formData)
+  return true
+}
+
 export async function advance(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const { data, error } = await db()
