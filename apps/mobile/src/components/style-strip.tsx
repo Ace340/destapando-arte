@@ -33,28 +33,26 @@ export function StyleStrip({ chips }: { chips: StyleChipRow[] }) {
             href={{ pathname: '/estilo/[slug]', params: { slug: style.slug } }}
             asChild
           >
-            <PressableChip chip={style} />
+            {/* asChild forwards onPress to the Link's direct child — a raw
+                Pressable (city-card.tsx pattern). A wrapper component that
+                doesn't spread its props swallows the tap. */}
+            <Pressable
+              style={({ pressed }) => [styles.chip, pressed ? styles.pressed : null]}
+            >
+              <ArtworkThumb
+                source={style.representative?.source ?? null}
+                palette={style.representative?.palette ?? []}
+                slug={style.slug}
+                size={CHIP}
+              />
+              <Text style={[styles.name, { color: theme.text }]} numberOfLines={2}>
+                {style.name}
+              </Text>
+            </Pressable>
           </Link>
         ))}
       </ScrollView>
     </View>
-  )
-}
-
-function PressableChip({ chip }: { chip: StyleChipRow }) {
-  const theme = useTheme()
-  return (
-    <Pressable style={({ pressed }) => (pressed ? styles.pressed : null)}>
-      <ArtworkThumb
-        source={chip.representative?.source ?? null}
-        palette={chip.representative?.palette ?? []}
-        slug={chip.slug}
-        size={CHIP}
-      />
-      <Text style={[styles.name, { color: theme.text }]} numberOfLines={2}>
-        {chip.name}
-      </Text>
-    </Pressable>
   )
 }
 

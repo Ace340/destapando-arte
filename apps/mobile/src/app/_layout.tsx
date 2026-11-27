@@ -50,6 +50,7 @@ export default function RootLayout() {
         <Stack.Screen name="obra/[slug]" />
         <Stack.Screen name="artista/[slug]" />
         <Stack.Screen name="ciudad/[slug]" />
+        <Stack.Screen name="estilo/[slug]" />
       </Stack>
       {!splashDone && <SplashAnimation onFinish={() => setSplashDone(true)} />}
     </SafeAreaProvider>
