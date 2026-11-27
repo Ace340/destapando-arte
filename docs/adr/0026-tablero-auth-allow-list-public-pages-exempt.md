@@ -1,0 +1,3 @@
+# Tablero auth: Auth.js email allow-list, public pages exempt
+
+2026-11-27. Only the Tablero surface is gated: Auth.js (Google OAuth) verified against the Allow-list — every listed email gets full write access, no roles. The public pages on the same domain (/obra/{slug}, /artista/{slug}, QR funnel, SEO, Avísame) stay open: they are the Primary funnel (ADR-0011), and walling the deployment would wall the channel's doors. Rejected: Vercel deployment protection (deployment-wide, cannot exempt public paths) and Clerk (vendor lock-in on infrastructure we don't own, against the spirit of ADR-0011). Boundary rule: the only writes from the public side are Content requests; every Catalog mutation requires the Allow-list.

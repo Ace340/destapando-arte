@@ -171,8 +171,12 @@ Live to the world (web page + app), independent of indexing.
 The YouTube unit; one Artwork = one Short in v1, nullable link on Artwork or Artist. The episode is derivative; the Story is the source of truth.
 
 **Tablero**:
-The editorial workspace where the Catalog is owned and the pipeline is worked — list, edit, advance. Shares the dashboard domain with the Public Story pages but is a different surface.
+The editorial workspace where the Catalog is owned and the pipeline is worked — list, edit, advance. Shares the dashboard domain with the Public Story pages but is a different surface. The only gated surface on the dashboard domain.
 _Avoid_: admin panel, back-office
+
+**Allow-list**:
+The email list that decides who may enter the Tablero: every verified address gets full write access — no roles, no read-only tier.
+_Avoid_: collaborators (as a role), permissions, user management
 
 **Public Story page**:
 The read-only /obra/{slug} web page served by the dashboard — QR target, install funnel, SEO surface, Avísame without the app.
