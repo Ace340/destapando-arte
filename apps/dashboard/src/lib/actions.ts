@@ -41,6 +41,20 @@ export async function saveBeats(formData: FormData): Promise<void> {
   revalidate(slug)
 }
 
+// ADR-0025: the per-obra classification, set by hand like every editorial
+// claim. Null clears the link («Sin clasificar»); the FK in the schema
+// rejects a style that isn't in the taxonomy and surfaces through the
+// Spanish context below.
+export async function saveStyle(formData: FormData): Promise<void> {
+  const slug = text(formData, 'slug')
+  const { error } = await db()
+    .from('artworks')
+    .update({ style_id: text(formData, 'style_id') || null })
+    .eq('slug', slug)
+  if (error) throw new Error(`Guardar estilo: ${error.message}`)
+  revalidate(slug)
+}
+
 export async function advance(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const { data, error } = await db()

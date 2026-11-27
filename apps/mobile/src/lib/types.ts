@@ -38,6 +38,7 @@ export interface Artwork {
   episode_youtube_id: string | null
   wikidata_id: string | null
   met_object_id: number | null
+  style_id: string | null // ADR-0025: the obra's Estilo; null = unclassified
   published_at: string | null
   created_at: string
   updated_at: string
@@ -72,12 +73,19 @@ export interface Film {
   director: string | null
 }
 
+export interface Style {
+  id: string
+  slug: string
+  name: string
+  wikidata_id: string | null
+}
+
 export interface FilmConnection {
   id: string
   film_id: string
   artwork_id: string | null
   artist_id: string | null
-  movement_id: string | null
+  style_id: string | null
   what_it_borrowed: string
   mechanism: string
   frame_analysis_text: string

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { get } from '@/lib/artworks'
+import { list as listStyles } from '@/lib/styles'
 import { isConfigured } from '@/lib/supabase-server'
 import { IndexedBadge, RightsBadge, StatusBadge } from '@/components/badges'
 import { SetupNotice } from '@/components/setup-notice'
@@ -9,6 +10,7 @@ import { ConnectionsEditor } from '@/components/editor/connections-editor'
 import { CuriositiesEditor } from '@/components/editor/curiosities-editor'
 import { ImagesEditor } from '@/components/editor/images-editor'
 import { StatusStepper } from '@/components/editor/status-stepper'
+import { StyleForm } from '@/components/editor/style-form'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +21,7 @@ export default async function Page(props: PageProps<'/cuadro/[slug]'>) {
   if (!bundle) notFound()
 
   const { artwork, curiosities, connections, images } = bundle
+  const estilos = await listStyles()
 
   return (
     <main className="mx-auto w-full max-w-3xl space-y-6 px-6 py-12">
@@ -54,6 +57,7 @@ export default async function Page(props: PageProps<'/cuadro/[slug]'>) {
         <StatusStepper slug={artwork.slug} status={artwork.story_status} />
       </header>
 
+      <StyleForm artwork={artwork} styles={estilos} />
       <ImagesEditor
         artworkId={artwork.id}
         slug={artwork.slug}
