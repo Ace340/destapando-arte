@@ -1,4 +1,3 @@
-import { auth } from '@/auth'
 import { requireEditor } from '@/lib/access'
 import { listCities } from '@/lib/cities'
 import { saveCity } from '@/lib/actions'
@@ -25,7 +24,7 @@ const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foregrou
 // counts separate the curated Lugares from the derived «Obras aquí».
 export default async function Page() {
   // ADR-0026: the gate answers before anything else, even Supabase setup.
-  requireEditor(await auth(), '/ciudades')
+  await requireEditor('/ciudades')
   if (!isConfigured()) return <SetupNotice />
   const cities = await listCities()
 

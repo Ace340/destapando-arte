@@ -12,6 +12,17 @@ import type { Session } from 'next-auth'
 // next-auth version internals.
 type EditorSession = Pick<Session, 'user'> | null | undefined
 
+// The session the guards inspect, fetched here instead of at every call
+// site: the session-fetch-then-guard pair had spread across ~20 sites
+// (assertEditor in actions.ts ×15, requireEditor on the gated pages ×5) —
+// the same logic shape in every hunk, folded into the two guards. The
+// '@/auth' import stays lazy on purpose: auth.ts imports isEditorEmail from
+// this module, so a static import would close a module cycle; laziness
+// defers resolution past module-evaluation time, where the cycle would bite.
+async function currentSession(): Promise<EditorSession> {
+  return (await import('@/auth')).auth()
+}
+
 export function editorEmails(): ReadonlySet<string> {
   return new Set(
     (process.env.AUTH_EDITOR_EMAILS ?? '')
@@ -40,7 +51,8 @@ export function isAuthConfigured(): boolean {
 // matcher change can silently lose coverage (Next 16 docs) — each gated page
 // re-checks beside its isConfigured() guard. Redirects to /login with the
 // ADR-0026 boundary preserved: the funnel pages are never touched by either layer.
-export function requireEditor(session: EditorSession, callbackUrl: string): void {
+export async function requireEditor(callbackUrl: string): Promise<void> {
+  const session = await currentSession()
   if (!isEditorEmail(session?.user?.email)) {
     redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`)
   }
@@ -49,7 +61,8 @@ export function requireEditor(session: EditorSession, callbackUrl: string): void
 // Action guard: the true ADR-0026 boundary — the only public-side write is
 // createRequest, so every other action in actions.ts calls this first and
 // answers with a Spanish throw like its sibling errors.
-export function assertEditor(session: EditorSession): void {
+export async function assertEditor(): Promise<void> {
+  const session = await currentSession()
   if (!isEditorEmail(session?.user?.email)) {
     throw new Error('Tablero: tu correo no está en la Allow-list (ADR-0026).')
   }

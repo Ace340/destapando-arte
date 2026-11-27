@@ -39,7 +39,7 @@ export default async function LoginPage(props: PageProps<'/login'>) {
           <CardHeader>
             <CardTitle className="text-2xl">Falta configurar el acceso</CardTitle>
             <CardDescription>
-              El tablero pide identidad antes de abrirse (ADR-0026) — y sus
+              El Tablero pide identidad antes de abrirse (ADR-0026) — y sus
               credenciales viven solo en el servidor.
             </CardDescription>
           </CardHeader>

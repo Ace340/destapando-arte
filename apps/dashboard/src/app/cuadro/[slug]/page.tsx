@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import { auth } from '@/auth'
 import { requireEditor } from '@/lib/access'
 import { get } from '@/lib/artworks'
 import { list as listStyles } from '@/lib/styles'
@@ -19,7 +18,7 @@ export const dynamic = 'force-dynamic'
 export default async function Page(props: PageProps<'/cuadro/[slug]'>) {
   // ADR-0026: the gate answers before anything else, even Supabase setup.
   const { slug } = await props.params
-  requireEditor(await auth(), `/cuadro/${slug}`)
+  await requireEditor(`/cuadro/${slug}`)
   if (!isConfigured()) return <SetupNotice />
   const bundle = await get(slug)
   if (!bundle) notFound()

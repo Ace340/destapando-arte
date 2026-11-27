@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import { auth } from '@/auth'
 import { requireEditor } from '@/lib/access'
 import { getCity } from '@/lib/cities'
 import { isConfigured } from '@/lib/supabase-server'
@@ -25,7 +24,7 @@ export const dynamic = 'force-dynamic'
 export default async function Page(props: PageProps<'/ciudades/[slug]'>) {
   // ADR-0026: the gate answers before anything else, even Supabase setup.
   const { slug } = await props.params
-  requireEditor(await auth(), `/ciudades/${slug}`)
+  await requireEditor(`/ciudades/${slug}`)
   if (!isConfigured()) return <SetupNotice />
   const bundle = await getCity(slug)
   if (!bundle) notFound()

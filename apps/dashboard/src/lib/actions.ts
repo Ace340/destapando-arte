@@ -6,7 +6,6 @@
 // is the public Content-request write (Avísame), the funnel's open door.
 
 import { revalidatePath } from 'next/cache'
-import { auth } from '@/auth'
 import { assertEditor } from './access'
 import { db } from './supabase-server'
 import { previewUrl } from './image-url'
@@ -32,7 +31,7 @@ function revalidate(slug: string): void {
 }
 
 export async function saveBeats(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const slug = text(formData, 'slug')
   const patch = {
     summary: text(formData, 'summary') || null,
@@ -52,7 +51,7 @@ export async function saveBeats(formData: FormData): Promise<void> {
 // schema's FK stays as the backstop (its English body only surfaces for
 // forged posts).
 export async function saveStyle(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const slug = text(formData, 'slug')
   const styleId = text(formData, 'style_id') || null
   if (styleId) {
@@ -84,7 +83,7 @@ export async function saveStyleState(_prev: boolean, formData: FormData): Promis
 }
 
 export async function advance(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const slug = text(formData, 'slug')
   const { data, error } = await db()
     .from('artworks')
@@ -132,7 +131,7 @@ async function nextSlot(
 }
 
 export async function createCuriosity(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const artworkId = text(formData, 'artwork_id')
   const slug = text(formData, 'slug')
   const body = text(formData, 'text')
@@ -158,7 +157,7 @@ export async function createCuriosity(formData: FormData): Promise<void> {
 // The editorial headline shown as the collapsible label on /obra and in the
 // app. Optional: null keeps the text preview as the row label.
 export async function setCuriosityTitle(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const id = text(formData, 'id')
   const slug = text(formData, 'slug')
   const { error } = await db()
@@ -170,7 +169,7 @@ export async function setCuriosityTitle(formData: FormData): Promise<void> {
 }
 
 export async function removeCuriosity(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const id = text(formData, 'id')
   const slug = text(formData, 'slug')
   const { error } = await db().from('curiosities').delete().eq('id', id)
@@ -200,7 +199,7 @@ async function resolveFilm(
 }
 
 export async function saveConnection(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const artworkId = text(formData, 'artwork_id')
   const slug = text(formData, 'slug')
   const filmTitle = text(formData, 'film_title')
@@ -231,7 +230,7 @@ export async function saveConnection(formData: FormData): Promise<void> {
 }
 
 export async function removeConnection(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const id = text(formData, 'id')
   const slug = text(formData, 'slug')
   const { error } = await db().from('film_connections').delete().eq('id', id)
@@ -244,7 +243,7 @@ export async function removeConnection(formData: FormData): Promise<void> {
 // Commons *file page* (migration contract); the Special:FilePath transform
 // renders it. Credit is mandatory: attribution stays cheap and honest (ADR-0016).
 export async function saveImage(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const artworkId = text(formData, 'artwork_id')
   const slug = text(formData, 'slug')
   const sourceUrl = text(formData, 'source_url')
@@ -290,7 +289,7 @@ export async function saveImage(formData: FormData): Promise<void> {
 }
 
 export async function removeImage(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const id = text(formData, 'id')
   const slug = text(formData, 'slug')
   // The reference floor (>= 3 on an indexed artwork) is the database's call —
@@ -327,7 +326,7 @@ export async function createRequest(formData: FormData): Promise<void> {
 // it to a monogram. A stale pointer fails the save with a clear message so
 // the editor fixes the choice instead of silently losing it.
 export async function saveArtist(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const slug = text(formData, 'slug')
   const born = parseInt(text(formData, 'born_year'), 10)
   const died = parseInt(text(formData, 'died_year'), 10)
@@ -387,7 +386,7 @@ function revalidateCity(slug: string): void {
 }
 
 export async function saveCity(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const slug = text(formData, 'slug')
   const name = text(formData, 'name')
   const position = parseInt(text(formData, 'position'), 10)
@@ -479,7 +478,7 @@ export async function saveCity(formData: FormData): Promise<void> {
 }
 
 export async function savePlace(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const cityId = text(formData, 'city_id')
   const citySlug = text(formData, 'city_slug')
   const placeId = text(formData, 'place_id')
@@ -525,7 +524,7 @@ export async function savePlace(formData: FormData): Promise<void> {
 }
 
 export async function removePlace(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const id = text(formData, 'id')
   const citySlug = text(formData, 'city_slug')
   const { error } = await db().from('city_places').delete().eq('id', id)
@@ -534,7 +533,7 @@ export async function removePlace(formData: FormData): Promise<void> {
 }
 
 export async function removeCity(formData: FormData): Promise<void> {
-  assertEditor(await auth())
+  await assertEditor()
   const slug = text(formData, 'slug')
   // Places cascade in the database (city_places.city_id ON DELETE CASCADE);
   // a city is a cheap hand-created row — unlike obras/artists, whose removal
