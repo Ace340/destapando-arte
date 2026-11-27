@@ -1,3 +1,4 @@
+import { requireEditor } from '@/lib/access'
 import { listCities } from '@/lib/cities'
 import { saveCity } from '@/lib/actions'
 import { isConfigured } from '@/lib/supabase-server'
@@ -22,6 +23,8 @@ const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foregrou
 // creation is the listing gate, so the row IS the published state; the
 // counts separate the curated Lugares from the derived «Obras aquí».
 export default async function Page() {
+  // ADR-0026: the gate answers before anything else, even Supabase setup.
+  await requireEditor('/ciudades')
   if (!isConfigured()) return <SetupNotice />
   const cities = await listCities()
 

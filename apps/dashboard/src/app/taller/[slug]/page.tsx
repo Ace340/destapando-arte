@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { requireEditor } from '@/lib/access'
 import { getArtist } from '@/lib/artists'
 import { isConfigured } from '@/lib/supabase-server'
 import { StatusBadge } from '@/components/badges'
@@ -18,8 +19,10 @@ export const dynamic = 'force-dynamic'
 // The Tablero's artist editor. Route word follows the obra/cuadro split
 // (public /artista vs Tablero /taller): different surfaces, different words.
 export default async function Page(props: PageProps<'/taller/[slug]'>) {
-  if (!isConfigured()) return <SetupNotice />
+  // ADR-0026: the gate answers before anything else, even Supabase setup.
   const { slug } = await props.params
+  await requireEditor(`/taller/${slug}`)
+  if (!isConfigured()) return <SetupNotice />
   const bundle = await getArtist(slug)
   if (!bundle) notFound()
 

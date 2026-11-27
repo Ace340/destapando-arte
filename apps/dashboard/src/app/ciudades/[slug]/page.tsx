@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { requireEditor } from '@/lib/access'
 import { getCity } from '@/lib/cities'
 import { isConfigured } from '@/lib/supabase-server'
 import { SetupNotice } from '@/components/setup-notice'
@@ -21,8 +22,10 @@ export const dynamic = 'force-dynamic'
 // page exists in v1 (ADR-0024): this editor and the mobile tab are the only
 // surfaces.
 export default async function Page(props: PageProps<'/ciudades/[slug]'>) {
-  if (!isConfigured()) return <SetupNotice />
+  // ADR-0026: the gate answers before anything else, even Supabase setup.
   const { slug } = await props.params
+  await requireEditor(`/ciudades/${slug}`)
+  if (!isConfigured()) return <SetupNotice />
   const bundle = await getCity(slug)
   if (!bundle) notFound()
 

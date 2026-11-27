@@ -1,3 +1,4 @@
+import { requireEditor } from '@/lib/access'
 import { list } from '@/lib/artworks'
 import { listArtists } from '@/lib/artists'
 import { listCities } from '@/lib/cities'
@@ -32,6 +33,8 @@ const PENDING_GATES: readonly { title: string; target: string }[] = [
 ]
 
 export default async function Home() {
+  // ADR-0026: the gate answers before anything else, even Supabase setup.
+  await requireEditor('/')
   if (!isConfigured()) return <SetupNotice />
   const [rows, artists, cities] = await Promise.all([list(), listArtists(), listCities()])
 

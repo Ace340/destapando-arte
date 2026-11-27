@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { requireEditor } from '@/lib/access'
 import { get } from '@/lib/artworks'
 import { list as listStyles } from '@/lib/styles'
 import { isConfigured } from '@/lib/supabase-server'
@@ -15,8 +16,10 @@ import { StyleForm } from '@/components/editor/style-form'
 export const dynamic = 'force-dynamic'
 
 export default async function Page(props: PageProps<'/cuadro/[slug]'>) {
-  if (!isConfigured()) return <SetupNotice />
+  // ADR-0026: the gate answers before anything else, even Supabase setup.
   const { slug } = await props.params
+  await requireEditor(`/cuadro/${slug}`)
+  if (!isConfigured()) return <SetupNotice />
   const bundle = await get(slug)
   if (!bundle) notFound()
 
