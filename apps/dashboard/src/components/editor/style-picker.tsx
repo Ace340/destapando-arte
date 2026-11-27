@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useActionState, useState } from 'react'
+import { saveStyleState } from '@/lib/actions'
 import { NativeSelect } from '@/components/native-select'
 import type { Style } from '@/lib/types'
+import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
 const caption = 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
@@ -27,55 +29,76 @@ const GROUPS: Array<{ label: string; slugs: string[] }> = [
   },
 ]
 
-// The select stays native on purpose (NativeSelect lives inside a
-// server-action <form> — a JS widget would silently drop its value), and
-// native options render name text only. So a small client island renders the
-// chosen style's description beneath as help. Without JS the select still
-// submits; the help line simply stays on the saved choice.
-export function StylePicker({ styles, defaultValue }: { styles: Style[]; defaultValue: string }) {
-  const [selected, setSelected] = useState(defaultValue)
+// The select stays native (NativeSelect lives inside a server-action <form> —
+// a JS popup widget would silently drop its value) — native options render
+// name text only, so the chosen style's description renders beneath as help.
+// The save confirmation is the island's one piece of state: saveStyleState
+// (the same write as saveStyle, useActionState's prevState signature) runs
+// the mutation server-side; the line just confirms the write happened.
+export function StylePicker({
+  slug,
+  styles,
+  defaultStyleId,
+}: {
+  slug: string
+  styles: Style[]
+  defaultStyleId: string
+}) {
+  const [selected, setSelected] = useState(defaultStyleId)
+  const [saved, formAction] = useActionState(saveStyleState, false)
   const current = styles.find((style) => style.id === selected)
   const claimed = new Set(GROUPS.flatMap((group) => group.slugs))
   const unknown = styles.filter((style) => !claimed.has(style.slug))
 
   return (
-    <div className="space-y-1.5">
-      <Label className={caption} htmlFor="style_id">
-        Estilo de la obra
-      </Label>
-      <NativeSelect
-        id="style_id"
-        name="style_id"
-        defaultValue={defaultValue}
-        onChange={(event) => setSelected(event.target.value)}
-      >
-        <option value="">Sin clasificar</option>
-        {GROUPS.map((group) => {
-          const members = styles.filter((style) => group.slugs.includes(style.slug))
-          if (members.length === 0) return null
-          return (
-            <optgroup key={group.label} label={group.label}>
-              {members.map((style) => (
+    <form action={formAction} className="space-y-4">
+      <input type="hidden" name="slug" value={slug} />
+
+      <div className="space-y-1.5">
+        <Label className={caption} htmlFor="style_id">
+          Estilo de la obra
+        </Label>
+        <NativeSelect
+          id="style_id"
+          name="style_id"
+          defaultValue={defaultStyleId}
+          onChange={(event) => setSelected(event.target.value)}
+        >
+          <option value="">Sin clasificar</option>
+          {GROUPS.map((group) => {
+            const members = styles.filter((style) => group.slugs.includes(style.slug))
+            if (members.length === 0) return null
+            return (
+              <optgroup key={group.label} label={group.label}>
+                {members.map((style) => (
+                  <option key={style.id} value={style.id}>
+                    {style.name}
+                  </option>
+                ))}
+              </optgroup>
+            )
+          })}
+          {unknown.length > 0 && (
+            <optgroup label="Otros">
+              {unknown.map((style) => (
                 <option key={style.id} value={style.id}>
                   {style.name}
                 </option>
               ))}
             </optgroup>
-          )
-        })}
-        {unknown.length > 0 && (
-          <optgroup label="Otros">
-            {unknown.map((style) => (
-              <option key={style.id} value={style.id}>
-                {style.name}
-              </option>
-            ))}
-          </optgroup>
-        )}
-      </NativeSelect>
-      {current?.description ? (
-        <p className="text-xs leading-relaxed text-muted-foreground">{current.description}</p>
+          )}
+        </NativeSelect>
+        {current?.description ? (
+          <p className="text-xs leading-relaxed text-muted-foreground">{current.description}</p>
+        ) : null}
+      </div>
+
+      <Button type="submit">Guardar estilo</Button>
+      {saved ? (
+        <p role="status" className="text-xs text-primary">
+          Estilo guardado.
+        </p>
       ) : null}
-    </div>
+    </form>
   )
 }

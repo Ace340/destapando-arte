@@ -55,6 +55,14 @@ export async function saveStyle(formData: FormData): Promise<void> {
   revalidate(slug)
 }
 
+// Same write, state-flavored for the Estilo picker's client island
+// (useActionState needs the prevState-forwarding signature — see the Forms
+// guide). Errors still throw; the boolean just drives the saved message.
+export async function saveStyleState(_prev: boolean, formData: FormData): Promise<boolean> {
+  await saveStyle(formData)
+  return true
+}
+
 export async function advance(formData: FormData): Promise<void> {
   const slug = text(formData, 'slug')
   const { data, error } = await db()
